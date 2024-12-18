@@ -38,23 +38,23 @@ public class PlayerController : MonoBehaviour
 
     void Mover()
     {
-        if (Input.GetKey("w"))
+        if (Input.GetKey("w") && !rb.isKinematic)
         {
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
         }
-        if (Input.GetKey("s"))
+        if (Input.GetKey("s") && !rb.isKinematic)
         {
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
         }
-        if (Input.GetKey("a"))
+        if (Input.GetKey("a") && !rb.isKinematic)
         {
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
         }
-        if (Input.GetKey("d"))
+        if (Input.GetKey("d") && !rb.isKinematic)
         {
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         }
-        if (Input.GetKey(KeyCode.Space) && canJump)
+        if (Input.GetKey(KeyCode.Space) && canJump && !rb.isKinematic)
         {
             canJump = false;
             rb.AddForce(transform.up * jumpForce);
@@ -64,8 +64,9 @@ public class PlayerController : MonoBehaviour
         {
             if (MazeGenerator.Instance._canResetWalls == true)
             {
-                rb.constraints = RigidbodyConstraints.FreezePosition;
-                rb.constraints = RigidbodyConstraints.FreezeRotation;
+                rb.isKinematic = true;
+                //rb.constraints = RigidbodyConstraints.FreezePosition;
+                //rb.constraints = RigidbodyConstraints.FreezeRotation;
                 MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
             }
             else if (MazeGenerator.Instance._canResetWalls == false)
@@ -77,8 +78,10 @@ public class PlayerController : MonoBehaviour
 
     public void UnfreezePlayer()
     {
-        rb.constraints = RigidbodyConstraints.None;
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        //rb.constraints = RigidbodyConstraints.None;
+        //rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.isKinematic = false;
+
     }
 
     private void OnCollisionEnter(Collision collision)

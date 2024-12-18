@@ -17,8 +17,12 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField]
     private int _mazeDepth;
 
+    [SerializeField]
+    private List<Material> _materials;
+
     private MazeCell[,] _mazeGrid;
 
+    // index of end cell in maze
     private int[] _endCell;
     public bool _canResetWalls {  get; private set; }
 
@@ -33,6 +37,8 @@ public class MazeGenerator : MonoBehaviour
 
     [SerializeField]
     private float _timeToRaiseWalls;
+
+    private int visitedCellCount = 0;
 
     private void Awake()
     {
@@ -89,6 +95,7 @@ public class MazeGenerator : MonoBehaviour
     //private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
     private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell)
     {
+        visitedCellCount++;
         if (currentCell == _mazeGrid[endCell[0], endCell[1]] && currentCell.isVisited == false)
         {
             // is at right of grid
@@ -104,6 +111,15 @@ public class MazeGenerator : MonoBehaviour
             }
 
             //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
+        }
+
+        if (visitedCellCount <= ( _mazeWidth* _mazeDepth / 2))
+        {
+            currentCell.SetCellMaterial(_materials[0]);
+        }
+        else
+        {
+            currentCell.SetCellMaterial(_materials[1]);
         }
 
         currentCell.Visit();

@@ -223,6 +223,9 @@ MonoBehaviour:
   _mazeCellPrefab: {fileID: 5943907839882638597, guid: 661e8829fb4ab2c48bf9d16831333821, type: 3}
   _mazeWidth: 20
   _mazeDepth: 20
+  _materials:
+  - {fileID: 2100000, guid: 84f117342e6837e48858eecb8c3392c3, type: 2}
+  - {fileID: 2100000, guid: 86fd6ca857519cf4c9e7806c34d46f81, type: 2}
   _timeToGenerateWalls: 0
   _timeToLowerWalls: 2
   _timeToRaiseWalls: 0.5

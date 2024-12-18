@@ -10,12 +10,16 @@ public class MazeWall : MonoBehaviour
     public bool canRaise = false;
     public bool canLower = false;
 
+    //Renderer _renderer;
+
 
     private Vector3 _endPosition;
     private Vector3 _startPosition;
 
     private void Start()
     {
+        //_renderer = GetComponent<Renderer>();
+
         _startPosition = transform.localPosition;
         _endPosition = _startPosition + new Vector3(0, -1f, 0);
         canLower = true;
@@ -91,5 +95,11 @@ public class MazeWall : MonoBehaviour
         {
             yield return null;
         }
+    }
+
+    public void SetMaterial(Material newMaterial)
+    {
+        GetComponent<MeshRenderer>().material = newMaterial;
+        //_renderer.material = newMaterial;
     }
 }

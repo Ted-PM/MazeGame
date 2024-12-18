@@ -48,6 +48,14 @@ public class MazeCell : MonoBehaviour
         _unvisitedBlock.SetActive(false);
     }
 
+    public void SetCellMaterial(Material material)
+    {
+        _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
+        _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
+        _backWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
+        _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
+    }
+
     public void ClearLeftWall()
     {
         _leftVisited = true;
