@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -32,6 +33,15 @@ public class MazeCell : MonoBehaviour
     public bool isRightEnd { get; private set; }
     public bool isFrontEnd { get; private set; }
 
+    private Vector3 endPosition = new Vector3(0, -0.5f, 0);
+
+    //private void Awake()
+    //{
+    //    _leftWall = GameObject.Find("LeftWall").GetComponentInChildren<MazeWall>();
+    //    _rightWall = GameObject.Find("RightWall").GetComponentInChildren<MazeWall>();
+    //    _frontWall = GameObject.Find("FrontWall").GetComponentInChildren<MazeWall>();
+    //    _backWall = GameObject.Find("BackWall").GetComponentInChildren<MazeWall>();
+    //}
     public void Visit()
     {
         isVisited = true;
@@ -62,33 +72,36 @@ public class MazeCell : MonoBehaviour
         _backWall.SetActive(false);
     }
 
-    public void ClearAll(int mazeWidth, int mazeDepth)
+    public void ClearAll(int mazeWidth, int mazeDepth, float lowerTime)
     {
         if (_leftVisited == false && transform.position.x > 0)
         {
-            _leftWall.SetActive(false);
+            _leftWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_leftWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
+            //_leftWall.LowerWall(lowerTime);
+            //_leftWall.SetActive(false);
         }
         if (_rightVisited == false && transform.position.x < mazeWidth - 1)
         {
-            _rightWall.SetActive(false);
+            _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
+            //_rightWall.LowerWall(lowerTime);
+            //_rightWall.gameObject.SetActive(false);
         }
         if (_frontVisited == false && transform.position.z < mazeDepth - 1)
         {
-            _frontWall.SetActive(false);
+            _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
+            //_frontWall.LowerWall(lowerTime);
+            //_frontWall.gameObject.SetActive(false);
         }
         if(_backsVisited == false && transform.position.z > 0)
         {
-            _backWall.SetActive(false);
+            _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_backWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
+            //_backWall.LowerWall(lowerTime);
+            //_backWall.gameObject.SetActive(false);
         }
-
-        //if (isRightEnd)
-        //{
-        //    _rightWall.SetActive(true);
-        //}
-        //if (isFrontEnd)
-        //{
-        //    _frontWall.SetActive(true);
-        //}
     }
 
     public void HasEnd(bool right)
@@ -103,52 +116,35 @@ public class MazeCell : MonoBehaviour
         }
     }
 
-    //public void AddRightEnd()
-    //{
-    //    _rightWall.SetActive(true);
-    //}
-
-    //public void AddFrontEnd()
-    //{
-    //    _frontWall.SetActive(true);
-    //}
-
-    //public void ResetRightEnd()
-    //{
-    //    _rightWall.SetActive(true);
-    //}
-
-    //public void ResetFrontEnd()
-    //{
-    //    _frontWall.SetActive(true);
-    //}
-
-    public void ResetAll(int mazeWidth, int mazeDepth)
+    public void ResetAll(int mazeWidth, int mazeDepth, float raiseTime)
     {
         if (_leftVisited == false && transform.position.x > 0)
         {
-            _leftWall.SetActive(true);
+            _leftWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_leftWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
+            //_leftWall.RaiseWall(raiseTime);
+            //_leftWall.gameObject.SetActive(true);
         }
         if (_rightVisited == false && transform.position.x < mazeWidth - 1)
         {
-            _rightWall.SetActive(true);
+            _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
+            //_rightWall.RaiseWall(raiseTime);
+            //_rightWall.gameObject.SetActive(true);
         }
         if (_frontVisited == false && transform.position.z < mazeDepth - 1)
         {
-            _frontWall.SetActive(true);
+            _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
+            //_frontWall.RaiseWall(raiseTime);
+            //_frontWall.gameObject.SetActive(true);
         }
         if (_backsVisited == false && transform.position.z > 0)
         {
-            _backWall.SetActive(true);
+            _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_backWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
+            //_backWall.RaiseWall(raiseTime);
+            //_backWall.gameObject.SetActive(true);
         }
-
-        //if (isRightEnd)
-        //{
-        //    _rightWall.SetActive(false);
-        //}
-        //if (isFrontEnd)
-        //{
-        //    _frontWall.SetActive(false);
-        //}
     }
 }

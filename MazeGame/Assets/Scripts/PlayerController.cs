@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(transform.up * jumpForce);
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown("v"))
         {
             if (MazeGenerator.Instance._canResetWalls == true)
             {
@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
             }
             else if (MazeGenerator.Instance._canResetWalls == false)
             {
-                MazeGenerator.Instance.ResetAllWalls();
+                MazeGenerator.Instance.PlayerResetAll();
             }
 
         }

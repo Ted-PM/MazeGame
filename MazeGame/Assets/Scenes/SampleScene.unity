@@ -222,7 +222,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mazeCellPrefab: {fileID: 5943907839882638597, guid: 661e8829fb4ab2c48bf9d16831333821, type: 3}
   _mazeWidth: 20
-  _mazeDepth: 25
+  _mazeDepth: 20
+  _timeToGenerateWalls: 0
+  _timeToLowerWalls: 2
+  _timeToRaiseWalls: 0.5
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
