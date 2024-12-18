@@ -1,0 +1,181 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+// for random sorting of list ?
+using System.Linq;
+
+public class MazeGenerator : MonoBehaviour
+{
+    [SerializeField]
+    private MazeCell _mazeCellPrefab;
+
+    [SerializeField]
+    private int _mazeWidth;
+
+    [SerializeField]
+    private int _mazeDepth;
+
+    private MazeCell[,] _mazeGrid;
+
+    void Start()
+    {
+        _mazeGrid = new  MazeCell[_mazeWidth, _mazeDepth];
+
+        for (int i = 0; i < _mazeWidth; i++)
+        {
+            for (int j = 0; j < _mazeDepth; j++)
+            {
+                _mazeGrid[i, j] = Instantiate(_mazeCellPrefab, new Vector3(i, 0, j), Quaternion.identity);
+            }
+        }
+
+        // start at first cell
+            //yield return GenerateMaze(null, _mazeGrid[0,0]);    
+        GenerateMaze(null, _mazeGrid[0,0]);    
+    }
+
+    // generats maze
+    //private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell)
+    private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
+    {
+        currentCell.Visit();
+        ClearWalls(previousCell, currentCell);
+
+        // waits before do next
+            //yield return new WaitForSeconds(0.05f);
+
+        MazeCell nextCell;
+
+        // if null, backtracks recursively
+        do
+        {
+            nextCell = GetUnvisitedCell(currentCell);
+
+            if (nextCell != null)
+            {
+                // use yield return for coroutine
+                //yield return GenerateMaze(currentCell, nextCell);
+                GenerateMaze(currentCell, nextCell);
+            }
+        } while (nextCell != null);
+    }
+
+    // gets random unvisted cell (adjacent to current cell)
+    private MazeCell GetUnvisitedCell(MazeCell currentCell)
+    {
+        var unvisitedCells = GetUnvisitedCells(currentCell);
+
+        // orders list randomly? (return first or default return first if only 1)
+        return unvisitedCells.OrderBy(_ => Random.Range(1, 10)).FirstOrDefault();
+    }
+
+    // returns list of unvisited cells (next to current cell)
+    private IEnumerable<MazeCell> GetUnvisitedCells(MazeCell currentCell)
+    {
+        // x pos of curr cell
+        int x = (int)currentCell.transform.position.x;
+        // z pos of curr cell
+        int z = (int)currentCell.transform.position.z;
+        // (vals correspond to index of cell in arr)
+
+        // check cell to right is in grid
+        if (x+1 < _mazeWidth)
+        {
+            // if is in grid, get cell 
+            var cellToRight = _mazeGrid[x + 1, z];
+
+            // check if visited
+            if (cellToRight.isVisited == false)
+            {
+                // if no, add cell to return collection
+                yield return cellToRight;
+            }
+        }
+
+        // cells start at 0, so check if not too far left
+        if (x - 1 >= 0)
+        {
+            var cellToLeft = _mazeGrid[x-1,z];
+
+            if (cellToLeft.isVisited == false)
+            {
+                yield return cellToLeft; 
+            }
+        }
+
+        // check cell not too far at front
+        if (z + 1 < _mazeDepth)
+        {
+            var cellToFront = _mazeGrid[x, z + 1];
+
+            if (cellToFront.isVisited == false)
+            {
+                yield return cellToFront;
+            }
+        }
+
+        // check cell not below 0
+        if (z - 1 >= 0)
+        {
+            var cellToBack = _mazeGrid[x, z - 1];
+
+            if (cellToBack.isVisited == false)
+            {
+                yield return cellToBack;
+            }
+        }
+    }
+
+
+    // checks where prev is relative to current and break walls between
+    private void ClearWalls(MazeCell previousCell, MazeCell currentCell)
+    {
+        // is first cell
+        if (previousCell == null)
+        {
+            return;
+        }
+
+        // prev is LEFT of current
+        if (previousCell.transform.position.x < currentCell.transform.position.x)
+        {
+            // went left to right, so prev clear right & current clear left
+            previousCell.ClearRightWall();
+            currentCell.ClearLeftWall();
+            return;
+        }
+
+        // prev is RIGHT of current
+        if (previousCell.transform.position.x > currentCell.transform.position.x)
+        {
+            // went right to left, so prev clear left & current clear right
+            previousCell.ClearLeftWall();
+            currentCell.ClearRightWall();
+            return;
+        }
+
+        // prev is BELOW of current
+        if (previousCell.transform.position.z < currentCell.transform.position.z)
+        {
+            // went down to up, so prev clear up & current clear down
+            previousCell.ClearFrontWall();
+            currentCell.ClearBackWall();
+            return;
+        }
+
+        // prev is ABOVE of current
+        if (previousCell.transform.position.z > currentCell.transform.position.z)
+        {
+            // went up to down, so prev clear down & current clear up
+            previousCell.ClearBackWall();
+            currentCell.ClearFrontWall();
+            return;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
