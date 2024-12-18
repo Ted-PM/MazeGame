@@ -22,6 +22,8 @@ public class MazeGenerator : MonoBehaviour
     private int[] _endCell;
     public bool _canResetWalls {  get; private set; }
 
+    private bool _wallsMoving = false;
+
     [SerializeField]
     private float _timeToGenerateWalls;
 
@@ -241,25 +243,36 @@ public class MazeGenerator : MonoBehaviour
     
     public void ClearAllWalls(float time)
     {
-
-        for (int i = 0; i< _mazeWidth; i++)
+        if (!_wallsMoving)
         {
-            for (int j = 0; j < _mazeDepth; j++)
+            _wallsMoving = true;    
+            for (int i = 0; i < _mazeWidth; i++)
             {
-                _mazeGrid[i, j].ClearAll(_mazeWidth, _mazeDepth, _timeToLowerWalls);
+                for (int j = 0; j < _mazeDepth; j++)
+                {
+                    _mazeGrid[i, j].ClearAll(_mazeWidth, _mazeDepth, _timeToLowerWalls);
+                }
             }
+
+            StartCoroutine(CanResetWallsWait());
+
+            StartCoroutine(WaitBeforeResetWalls(time));
         }
+    }
+
+    private IEnumerator CanResetWallsWait()
+    {
+        yield return new WaitForSeconds(_timeToLowerWalls);
+
+        _wallsMoving = false;
         _canResetWalls = false;
-
-
-        StartCoroutine(WaitBeforeResetWalls(time));
     }
 
     private IEnumerator WaitBeforeResetWalls(float time)
     {
         yield return new WaitForSeconds(time);
 
-        if (!_canResetWalls )
+        if (!_canResetWalls)
         {
             Debug.Log("coroutine donw");
             ResetAllWalls();
@@ -268,20 +281,35 @@ public class MazeGenerator : MonoBehaviour
 
     public void PlayerResetAll()
     {
-        StopCoroutine("WaitBeforeResetWalls");
-        ResetAllWalls();
+        if (!_wallsMoving)
+        {
+            StopCoroutine("WaitBeforeResetWalls");
+            ResetAllWalls();
+        }
     }
     public void ResetAllWalls()
     {
-        Debug.Log("start reset");
-        for (int i = 0; i < _mazeWidth; i++)
+        if (!_wallsMoving)
         {
-            for (int j = 0; j < _mazeDepth; j++)
+            Debug.Log("start reset");
+            for (int i = 0; i < _mazeWidth; i++)
             {
-                _mazeGrid[i, j].ResetAll(_mazeWidth, _mazeDepth, _timeToRaiseWalls);
+                for (int j = 0; j < _mazeDepth; j++)
+                {
+                    _mazeGrid[i, j].ResetAll(_mazeWidth, _mazeDepth, _timeToRaiseWalls);
+                }
             }
-        }
-        _canResetWalls = true;
 
+            StartCoroutine(CanRaiseWalls());
+        }
+
+    }
+
+    private IEnumerator CanRaiseWalls()
+    {
+        yield return new WaitForSeconds(_timeToRaiseWalls);
+
+        _wallsMoving = false;
+        _canResetWalls = true;
     }
 }

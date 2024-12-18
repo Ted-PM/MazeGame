@@ -36,7 +36,7 @@ public class MazeWall : MonoBehaviour
         if (canLower)
         {
             //StopCoroutine("RaiseWall");
-            //yield return 0;
+            yield return 0;
             Vector3 startPosition = transform.localPosition;
             canLower = false;
             canRaise = true;
@@ -69,7 +69,7 @@ public class MazeWall : MonoBehaviour
         if (canRaise)
         {
             //StopCoroutine("LowerWall");
-            //yield return 0;
+            yield return 0;
 
             canLower = true;
             canRaise = false;
