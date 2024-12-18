@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     float rotationX = 0;
     Rigidbody rb;
 
+    [SerializeField]
+    private float waitBeforeResetWallsTime;
+
     Collider _collider;
 
     bool canJump;
@@ -56,7 +59,21 @@ public class PlayerController : MonoBehaviour
             canJump = false;
             rb.AddForce(transform.up * jumpForce);
         }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            if (MazeGenerator.Instance._canResetWalls == true)
+            {
+                MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
+            }
+            else if (MazeGenerator.Instance._canResetWalls == false)
+            {
+                MazeGenerator.Instance.ResetAllWalls();
+            }
+
+        }
     }
+
 
     private void OnCollisionEnter(Collision collision)
     {
