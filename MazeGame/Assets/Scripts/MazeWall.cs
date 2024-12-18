@@ -4,33 +4,19 @@ using UnityEngine;
 
 public class MazeWall : MonoBehaviour
 {
-    //public float lowerTime = 0;
-    //public float raiseTime = 0;
-
     public bool canRaise = false;
     public bool canLower = false;
-
-    //Renderer _renderer;
-
 
     private Vector3 _endPosition;
     private Vector3 _startPosition;
 
     private void Start()
     {
-        //_renderer = GetComponent<Renderer>();
-
         _startPosition = transform.localPosition;
         _endPosition = _startPosition + new Vector3(0, -0.9f, 0);
         canLower = true;
         canRaise = false;
     }
-
-    //void Update()
-    //{
-
-        
-    //}
 
     public IEnumerator LowerWall(float lowerTime) //Vector3 endPosition, 
     {
@@ -100,6 +86,5 @@ public class MazeWall : MonoBehaviour
     public void SetMaterial(Material newMaterial)
     {
         GetComponent<MeshRenderer>().material = newMaterial;
-        //_renderer.material = newMaterial;
     }
 }
