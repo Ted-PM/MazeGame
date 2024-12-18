@@ -64,16 +64,22 @@ public class PlayerController : MonoBehaviour
         {
             if (MazeGenerator.Instance._canResetWalls == true)
             {
+                rb.constraints = RigidbodyConstraints.FreezePosition;
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
                 MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
             }
             else if (MazeGenerator.Instance._canResetWalls == false)
             {
                 MazeGenerator.Instance.PlayerResetAll();
             }
-
         }
     }
 
+    public void UnfreezePlayer()
+    {
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
 
     private void OnCollisionEnter(Collision collision)
     {

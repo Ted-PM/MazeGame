@@ -311,5 +311,7 @@ public class MazeGenerator : MonoBehaviour
 
         _wallsMoving = false;
         _canResetWalls = true;
+        FindObjectOfType<PlayerController>().UnfreezePlayer();
+        //PlayerController.UnfreezePlayer();
     }
 }
