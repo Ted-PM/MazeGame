@@ -17,8 +17,15 @@ public class MazeGenerator : MonoBehaviour
 
     private MazeCell[,] _mazeGrid;
 
-    void Start()
+    private int[] _endCell;
+
+    //void Start()
+    IEnumerator Start()
     {
+        _endCell = new int[2];
+
+        _endCell = GetEndCell();
+
         _mazeGrid = new  MazeCell[_mazeWidth, _mazeDepth];
 
         for (int i = 0; i < _mazeWidth; i++)
@@ -30,19 +37,58 @@ public class MazeGenerator : MonoBehaviour
         }
 
         // start at first cell
-            //yield return GenerateMaze(null, _mazeGrid[0,0]);    
-        GenerateMaze(null, _mazeGrid[0,0]);    
+        yield return GenerateMaze(null, _mazeGrid[0,0], _endCell);    
+        //GenerateMaze(null, _mazeGrid[0,0]);    
+    }
+
+    private int[] GetEndCell()
+    {
+        // 
+        int[] endCell = new int[2];
+
+        // 0 if end on right wall (x = _mazeDepth - 1)
+        // 1 if end of front wall (z = _mazeWidth - 1)
+        int endBorder = Random.Range(0, 2);
+
+        if (endBorder == 0)
+        {
+            endCell[0] = _mazeWidth - 1;
+            endCell[1] = Random.Range(0, _mazeDepth);
+        }
+        else
+        {
+            endCell[0] = Random.Range(0, _mazeWidth);
+            endCell[1] = _mazeDepth - 1;
+        }
+
+        //Debug.Log("EndCell: " + endCell[0] + ", " + endCell[1]);
+        return endCell;
     }
 
     // generats maze
-    //private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell)
-    private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
+    //private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
+    private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell)
     {
+        if (currentCell == _mazeGrid[endCell[0], endCell[1]] && currentCell.isVisited == false)
+        {
+            // is at right of grid
+            if (endCell[0] == _mazeWidth - 1)
+            {
+                _mazeGrid[endCell[0], endCell[1]].ClearRightWall();
+            }
+            else
+            {
+                _mazeGrid[endCell[0], endCell[1]].ClearFrontWall();
+            }
+
+            //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
+        }
+
         currentCell.Visit();
         ClearWalls(previousCell, currentCell);
 
         // waits before do next
-            //yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.05f);
 
         MazeCell nextCell;
 
@@ -54,8 +100,8 @@ public class MazeGenerator : MonoBehaviour
             if (nextCell != null)
             {
                 // use yield return for coroutine
-                //yield return GenerateMaze(currentCell, nextCell);
-                GenerateMaze(currentCell, nextCell);
+                yield return GenerateMaze(currentCell, nextCell, _endCell);
+                //GenerateMaze(currentCell, nextCell);
             }
         } while (nextCell != null);
     }

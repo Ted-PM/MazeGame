@@ -53,7 +53,6 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Space) && canJump)
         {
-            Debug.Log("Jump");
             canJump = false;
             rb.AddForce(transform.up * jumpForce);
         }
@@ -61,10 +60,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("collide");
         if (collision.gameObject.tag == "Floor")
         {
-            Debug.Log("collide floor");
             canJump = true;
         }
     }
