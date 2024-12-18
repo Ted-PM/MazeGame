@@ -115,11 +115,11 @@ public class MazeGenerator : MonoBehaviour
 
         if (visitedCellCount <= ( _mazeWidth* _mazeDepth / 2))
         {
-            currentCell.SetCellMaterial(_materials[0]);
+            currentCell.SetCellMaterial(_materials[0], _mazeWidth, _mazeDepth);
         }
         else
         {
-            currentCell.SetCellMaterial(_materials[1]);
+            currentCell.SetCellMaterial(_materials[1], _mazeWidth, _mazeDepth);
         }
 
         currentCell.Visit();

@@ -358,6 +358,7 @@ MonoBehaviour:
   _frontWall: {fileID: 5544002344126867416}
   _backWall: {fileID: 959420473070882426}
   _unvisitedBlock: {fileID: 7059468292389024260}
+  _edgeMaterial: {fileID: 2100000, guid: 9972b1eaca6a1b74880c7952e87e42b3, type: 2}
 --- !u!1 &3260604740641991589
 GameObject:
   m_ObjectHideFlags: 0

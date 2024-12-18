@@ -21,7 +21,7 @@ public class MazeWall : MonoBehaviour
         //_renderer = GetComponent<Renderer>();
 
         _startPosition = transform.localPosition;
-        _endPosition = _startPosition + new Vector3(0, -1f, 0);
+        _endPosition = _startPosition + new Vector3(0, -0.9f, 0);
         canLower = true;
         canRaise = false;
     }

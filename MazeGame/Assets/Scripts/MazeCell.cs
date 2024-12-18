@@ -28,6 +28,9 @@ public class MazeCell : MonoBehaviour
     [SerializeField]
     private GameObject _unvisitedBlock;
 
+    [SerializeField]
+    private Material _edgeMaterial;
+
     public bool isVisited {  get; private set; }
 
     public bool isRightEnd { get; private set; }
@@ -48,12 +51,35 @@ public class MazeCell : MonoBehaviour
         _unvisitedBlock.SetActive(false);
     }
 
-    public void SetCellMaterial(Material material)
+    public void SetCellMaterial(Material material, int mazeWidth, int mazeDepth)
     {
         _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
         _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
         _backWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
         _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(material);
+
+        ChangeEdgeMaterial(mazeWidth, mazeDepth);
+    }
+
+    private void ChangeEdgeMaterial(int mazeWidth, int mazeDepth)
+    {
+        // is left wall
+        if (transform.position.x == 0)
+        {
+            _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+        }
+        if (transform.position.x == mazeWidth - 1)
+        {
+            _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+        }
+        if (transform.position.z == 0)
+        {
+            _backWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+        }
+        if (transform.position.z == mazeDepth - 1)
+        {
+            _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+        }
     }
 
     public void ClearLeftWall()
