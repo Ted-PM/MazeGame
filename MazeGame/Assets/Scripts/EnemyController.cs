@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour
 {
     Transform target;
     NavMeshAgent agent;
+
+    //public GameObject _leftEye;
+    //public GameObject _rightEye;
 
     //public float walkingSpeed;
     //public float maxHealth;
@@ -33,6 +37,7 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         ChasePlayer();
+        //LookAt();
     }
 
 
@@ -40,6 +45,12 @@ public class EnemyController : MonoBehaviour
     {
         agent.destination = target.position;
     }
+
+    //void LookAt()
+    //{
+    //    _leftEye.transform.LookAt(Camera.main.transform);
+    //    _rightEye.transform.LookAt(Camera.main.transform);
+    //}
 
     public void TakeDamage(float damageToTake)        // public for projectile script 
     {

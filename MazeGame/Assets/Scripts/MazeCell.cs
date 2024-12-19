@@ -24,8 +24,8 @@ public class MazeCell : MonoBehaviour
     private GameObject _backWall;
     public bool _backsVisited { get; private set; }
 
-    [SerializeField]
-    private GameObject _unvisitedBlock;
+    //[SerializeField]
+    //private GameObject _unvisitedBlock;
 
     // corner balls for corners?
     [SerializeField]
@@ -64,7 +64,7 @@ public class MazeCell : MonoBehaviour
     public void Visit()
     {
         isVisited = true;
-        _unvisitedBlock.SetActive(false);
+        //_unvisitedBlock.SetActive(false);
     }
 
     public void SetCellMaterial(Material material, int mazeWidth, int mazeDepth)
@@ -161,7 +161,7 @@ public class MazeCell : MonoBehaviour
             //_leftWall.SetActive(false);
         }
         //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
-        if (_rightVisited == false && transform.position.x < mazeWidth*10 - 1)
+        if (_rightVisited == false && transform.position.x < (mazeWidth*10) - 10)
         {
             _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
@@ -169,7 +169,7 @@ public class MazeCell : MonoBehaviour
             //_rightWall.gameObject.SetActive(false);
         }
         //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
-        if (_frontVisited == false && transform.position.z < mazeDepth*10 - 1)
+        if (_frontVisited == false && transform.position.z < (mazeDepth*10) - 10)
         {
             _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
@@ -189,10 +189,15 @@ public class MazeCell : MonoBehaviour
     {
         if (right)
         {
+            //_rightWall.SetActive(false);
+            _rightWall.GetComponentInChildren<MeshRenderer>().enabled = false;
+            _rightWall.GetComponent<BoxCollider>().enabled = false;
             isRightEnd = true;
         }
         else
         {
+            _frontWall.GetComponentInChildren<MeshRenderer>().enabled = false;
+            _frontWall.GetComponent<BoxCollider>().enabled = false;
             isFrontEnd = true;
         }
     }

@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class MazeWall : MonoBehaviour
 {
     private NavMeshObstacle _navMeshObstacle;
+    private BoxCollider _boxCollider;
     public bool canRaise = false;
     public bool canLower = false;
 
@@ -15,6 +16,7 @@ public class MazeWall : MonoBehaviour
 
     private void Start()
     {
+        _boxCollider = GetComponentInParent<BoxCollider>();
         _navMeshObstacle = GetComponent<NavMeshObstacle>();
         _startPosition = transform.localPosition;
         _endPosition = _startPosition + new Vector3(0, -9.9f, 0);
@@ -47,7 +49,10 @@ public class MazeWall : MonoBehaviour
                 transform.localPosition = Vector3.Lerp(startPosition, _endPosition, t);
             }
 
-            _navMeshObstacle.carving = false;
+            //_navMeshObstacle.carving = false;
+            _navMeshObstacle.enabled = false;
+            //_boxCollider.transform.localPosition -= new Vector3 (0f, 11f, 0f);
+            _boxCollider.enabled = false;
         }
         else
         {
@@ -72,6 +77,8 @@ public class MazeWall : MonoBehaviour
 
             Vector3 currentPosition = transform.localPosition;
 
+            _navMeshObstacle.enabled = true;
+
             while (t < 1)
             {
                 yield return null;
@@ -81,7 +88,10 @@ public class MazeWall : MonoBehaviour
                 transform.localPosition = Vector3.Lerp(currentPosition, _startPosition, t);
             }
 
-            _navMeshObstacle.carving = true;
+            //_boxCollider.transform.localPosition += new Vector3(0f, 11f, 0f);
+            //_navMeshObstacle.carving = true;
+
+            _boxCollider.enabled = true;
         }
         else
         {

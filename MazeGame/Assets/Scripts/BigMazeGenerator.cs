@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 // for random sorting of list ?
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine.AI;
 
 public class BigMazeGenerator : MonoBehaviour
 {
@@ -135,12 +137,19 @@ public class BigMazeGenerator : MonoBehaviour
             // is at right of grid
             if (endCell[0] == _mazeWidth - 1)
             {
-                _mazeGrid[endCell[0], endCell[1]].ClearRightWall();
+                //_mazeGrid[endCell[0], endCell[1]].AddComponent<NavMeshObstacle>();
+                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localPosition = new Vector3(5f, 5f, 0f);
+                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localScale = new Vector3(1f, 10f, 10f);
+                //_mazeGrid[endCell[0], endCell[1]].ClearRightWall();
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(true);
+                
             }
             else
             {
-                _mazeGrid[endCell[0], endCell[1]].ClearFrontWall();
+                //_mazeGrid[endCell[0], endCell[1]].AddComponent<NavMeshObstacle>();
+                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localPosition = new Vector3(0f, 5f, 5f);
+                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localScale = new Vector3(1f, 10f, 10f);
+                //_mazeGrid[endCell[0], endCell[1]].ClearFrontWall();
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
             }
 
