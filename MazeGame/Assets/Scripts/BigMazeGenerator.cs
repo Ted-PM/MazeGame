@@ -27,6 +27,11 @@ public class BigMazeGenerator : MonoBehaviour
 
     // index of end cell in maze
     private int[] _endCell;
+
+    private int[,] _wallsToBreak;
+
+    [SerializeField]
+    private int _numWallsToBreak;
     public bool _canResetWalls { get; private set; }
 
     private bool _wallsMoving = false;
@@ -55,6 +60,10 @@ public class BigMazeGenerator : MonoBehaviour
 
         _mazeGrid = new MazeCell[_mazeWidth, _mazeDepth];
 
+        _wallsToBreak = new int[2, _numWallsToBreak];//(int)(_mazeWidth + _mazeDepth) / 10];
+
+        _wallsToBreak = GetWallsToBreak();
+
         for (int i = 0; i < _mazeWidth; i++)
         {
             for (int j = 0; j < _mazeDepth; j++)
@@ -64,7 +73,7 @@ public class BigMazeGenerator : MonoBehaviour
         }
 
         // start at first cell
-        yield return GenerateMaze(null, _mazeGrid[0, 0], _endCell);
+        yield return GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
         //GenerateMaze(null, _mazeGrid[0,0]);    
     }
@@ -93,9 +102,32 @@ public class BigMazeGenerator : MonoBehaviour
         return endCell;
     }
 
+    private int[,] GetWallsToBreak()
+    {
+        // 
+        int[,] wallsToBreak = new int[2, _numWallsToBreak];
+
+        // 0 if end on right wall (x = _mazeDepth - 1)
+        // 1 if end of front wall (z = _mazeWidth - 1)
+        for (int i = 0; i < _numWallsToBreak; i++)
+        {
+            wallsToBreak[0, i] = Random.Range(1, _mazeDepth-1);
+            wallsToBreak[1, i] = Random.Range(1, _mazeWidth - 1);
+
+            //for (int j = 0; j < i; j++)
+            //{
+            //    if (wallsToBreak[0, j] == wallsToBreak[0, i] && wallsToBreak[1, j] == wallsToBreak[1, i])
+
+            //}
+        }
+
+        //Debug.Log("EndCell: " + endCell[0] + ", " + endCell[1]);
+        return wallsToBreak;
+    }
+
     // generats maze
     //private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
-    private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell)
+    private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
     {
         visitedCellCount++;
         if (currentCell == _mazeGrid[endCell[0], endCell[1]] && currentCell.isVisited == false)
@@ -125,6 +157,18 @@ public class BigMazeGenerator : MonoBehaviour
             currentCell.SetCellMaterial(_materials[1], _mazeWidth, _mazeDepth);
         }
 
+
+        for (int i = 0; i < _numWallsToBreak; i++)
+        {
+            if (currentCell == _mazeGrid[wallsToBreak[0, i], wallsToBreak[1, i]] && currentCell.isVisited == false)
+            {
+                MazeCell randomCell;
+                randomCell = GetUnvisitedCell(currentCell);
+                ClearWalls(randomCell, currentCell);
+                Debug.Log("Breaking wall between " + wallsToBreak[0, i] + ", " + wallsToBreak[1, i]);
+            }
+        }
+
         currentCell.Visit();
         ClearWalls(previousCell, currentCell);
 
@@ -141,7 +185,7 @@ public class BigMazeGenerator : MonoBehaviour
             if (nextCell != null)
             {
                 // use yield return for coroutine
-                yield return GenerateMaze(currentCell, nextCell, _endCell);
+                yield return GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
                 //GenerateMaze(currentCell, nextCell);
             }
         } while (nextCell != null);
