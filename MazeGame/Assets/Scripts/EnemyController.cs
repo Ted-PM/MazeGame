@@ -9,7 +9,7 @@ public class EnemyController : MonoBehaviour
     Transform target;
     NavMeshAgent agent;
 
-    public float walkingSpeed;
+    //public float walkingSpeed;
     //public float maxHealth;
     //float currentHealth;
     //public float attackDamage;

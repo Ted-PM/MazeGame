@@ -12,6 +12,9 @@ public class BigMazeGenerator : MonoBehaviour
     private MazeCell _mazeCellPrefab;
 
     [SerializeField]
+    private EnemyController _enemyControllerPrefab;
+
+    [SerializeField]
     private int _mazeWidth;
 
     [SerializeField]
@@ -30,7 +33,6 @@ public class BigMazeGenerator : MonoBehaviour
 
     [SerializeField]
     private float _timeToGenerateWalls;
-
 
     [SerializeField]
     private float _timeToLowerWalls;
@@ -110,6 +112,7 @@ public class BigMazeGenerator : MonoBehaviour
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
             }
 
+            Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, 1.1f, endCell[1]*10), Quaternion.identity);
             //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
         }
 
