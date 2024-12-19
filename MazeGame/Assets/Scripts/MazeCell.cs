@@ -24,12 +24,28 @@ public class MazeCell : MonoBehaviour
     private GameObject _backWall;
     public bool _backsVisited { get; private set; }
 
-
     [SerializeField]
     private GameObject _unvisitedBlock;
 
+    // corner balls for corners?
+    [SerializeField]
+    private GameObject _frontLeftCorner;
+
+    [SerializeField]
+    private GameObject _frontRightCorner;
+
+    [SerializeField]
+    private GameObject _backLeftCorner;
+
+    [SerializeField]
+    private GameObject _backRightCorner;
+
+
     [SerializeField]
     private Material _edgeMaterial;
+
+    [SerializeField]
+    private float _ceelingHeight;
 
     public bool isVisited {  get; private set; }
 
@@ -67,20 +83,47 @@ public class MazeCell : MonoBehaviour
         if (transform.position.x == 0)
         {
             _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+            _leftWall.transform.localScale = _leftWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _leftWall.transform.localPosition = _leftWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+
+            // balls to left
+            _backLeftCorner.SetActive(false);
+            _frontLeftCorner.SetActive(false);
         }
         //if (transform.position.x == mazeWidth - 1)
+        // is right wall
         if ((transform.position.x/10) == mazeWidth - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+            _rightWall.transform.localScale = _rightWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _rightWall.transform.localPosition = _rightWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+
+            // balls to right
+            _backRightCorner.SetActive(false);
+            _frontRightCorner.SetActive(false);
         }
+        // is back wall
         if (transform.position.z == 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+            _backWall.transform.localScale = _backWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _backWall.transform.localPosition = _backWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+
+            // balls at back
+            _backRightCorner.SetActive(false);
+            _backLeftCorner.SetActive(false);
         }
+        // balls at front
         //if (transform.position.z == mazeDepth - 1)
         if ((transform.position.z/10) == mazeDepth - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
+            _frontWall.transform.localScale = _frontWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _frontWall.transform.localPosition = _frontWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+
+            // disable front corner balls
+            _frontLeftCorner.SetActive(false);
+            _frontRightCorner.SetActive(false);
         }
     }
 
