@@ -148,14 +148,18 @@ public class BigMazeGenerator : MonoBehaviour
             //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
         }
 
-        if (visitedCellCount <= (_mazeWidth * _mazeDepth / 2))
-        {
-            currentCell.SetCellMaterial(_materials[0], _mazeWidth, _mazeDepth);
-        }
-        else
-        {
-            currentCell.SetCellMaterial(_materials[1], _mazeWidth, _mazeDepth);
-        }
+        //if (visitedCellCount <= (_mazeWidth * _mazeDepth / 2))
+        //{
+        //    currentCell.SetCellMaterial(_materials[0], _mazeWidth, _mazeDepth);
+        //}
+        //else
+        //{
+        //    currentCell.SetCellMaterial(_materials[1], _mazeWidth, _mazeDepth);
+        //}
+
+        int randomMat = Random.Range(0, _materials.Count());
+        currentCell.SetCellMaterial(_materials[randomMat], _mazeWidth, _mazeDepth);
+
 
 
         for (int i = 0; i < _numWallsToBreak; i++)
