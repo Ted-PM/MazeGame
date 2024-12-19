@@ -1,19 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MazeWall : MonoBehaviour
 {
+    private NavMeshObstacle _navMeshObstacle;
     public bool canRaise = false;
     public bool canLower = false;
 
     private Vector3 _endPosition;
     private Vector3 _startPosition;
 
+
     private void Start()
     {
+        _navMeshObstacle = GetComponent<NavMeshObstacle>();
         _startPosition = transform.localPosition;
-        _endPosition = _startPosition + new Vector3(0, -0.9f, 0);
+        _endPosition = _startPosition + new Vector3(0, -9.9f, 0);
         canLower = true;
         canRaise = false;
     }
@@ -42,13 +46,13 @@ public class MazeWall : MonoBehaviour
 
                 transform.localPosition = Vector3.Lerp(startPosition, _endPosition, t);
             }
+
+            _navMeshObstacle.carving = false;
         }
         else
         {
             yield return null;
         }
-
-
     }
 
     public IEnumerator RaiseWall(float raiseTime)
@@ -76,6 +80,8 @@ public class MazeWall : MonoBehaviour
 
                 transform.localPosition = Vector3.Lerp(currentPosition, _startPosition, t);
             }
+
+            _navMeshObstacle.carving = true;
         }
         else
         {

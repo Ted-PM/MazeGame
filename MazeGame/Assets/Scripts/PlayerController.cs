@@ -62,16 +62,20 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown("v"))
         {
-            if (MazeGenerator.Instance._canResetWalls == true)
+            //if (MazeGenerator.Instance._canResetWalls == true)
+            if (BigMazeGenerator.Instance._canResetWalls == true)
             {
                 rb.isKinematic = true;
                 //rb.constraints = RigidbodyConstraints.FreezePosition;
                 //rb.constraints = RigidbodyConstraints.FreezeRotation;
-                MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
+                //MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
+                BigMazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
             }
-            else if (MazeGenerator.Instance._canResetWalls == false)
+            //else if (MazeGenerator.Instance._canResetWalls == false)
+            else if (BigMazeGenerator.Instance._canResetWalls == false)
             {
-                MazeGenerator.Instance.PlayerResetAll();
+                //MazeGenerator.Instance.PlayerResetAll();
+                BigMazeGenerator.Instance.PlayerResetAll();
             }
         }
     }

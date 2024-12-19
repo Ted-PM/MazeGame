@@ -68,7 +68,8 @@ public class MazeCell : MonoBehaviour
         {
             _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
         }
-        if (transform.position.x == mazeWidth - 1)
+        //if (transform.position.x == mazeWidth - 1)
+        if ((transform.position.x/10) == mazeWidth - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
         }
@@ -76,7 +77,8 @@ public class MazeCell : MonoBehaviour
         {
             _backWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
         }
-        if (transform.position.z == mazeDepth - 1)
+        //if (transform.position.z == mazeDepth - 1)
+        if ((transform.position.z/10) == mazeDepth - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
         }
@@ -115,14 +117,16 @@ public class MazeCell : MonoBehaviour
             //_leftWall.LowerWall(lowerTime);
             //_leftWall.SetActive(false);
         }
-        if (_rightVisited == false && transform.position.x < mazeWidth - 1)
+        //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
+        if (_rightVisited == false && transform.position.x < mazeWidth*10 - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
             //_rightWall.LowerWall(lowerTime);
             //_rightWall.gameObject.SetActive(false);
         }
-        if (_frontVisited == false && transform.position.z < mazeDepth - 1)
+        //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
+        if (_frontVisited == false && transform.position.z < mazeDepth*10 - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime));
@@ -159,14 +163,16 @@ public class MazeCell : MonoBehaviour
             //_leftWall.RaiseWall(raiseTime);
             //_leftWall.gameObject.SetActive(true);
         }
-        if (_rightVisited == false && transform.position.x < mazeWidth - 1)
+        //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
+        if (_rightVisited == false && transform.position.x < mazeWidth * 10 - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
             //_rightWall.RaiseWall(raiseTime);
             //_rightWall.gameObject.SetActive(true);
         }
-        if (_frontVisited == false && transform.position.z < mazeDepth - 1)
+        //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
+        if (_frontVisited == false && transform.position.z < mazeDepth* 10 - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime));
