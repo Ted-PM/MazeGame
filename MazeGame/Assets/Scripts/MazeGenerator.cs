@@ -40,6 +40,7 @@ public class MazeGenerator : MonoBehaviour
 
     private int visitedCellCount = 0;
 
+
     private void Awake()
     {
         Instance = this;

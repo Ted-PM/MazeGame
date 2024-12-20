@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.AI;
+using UnityEngine.Playables;
 
 public class BigMazeGenerator : MonoBehaviour
 {
@@ -38,6 +39,8 @@ public class BigMazeGenerator : MonoBehaviour
 
     private bool _wallsMoving = false;
 
+    public bool _wallsAreUp;
+
     [SerializeField]
     private float _timeToGenerateWalls;
 
@@ -49,13 +52,20 @@ public class BigMazeGenerator : MonoBehaviour
 
     private int visitedCellCount = 0;
 
+    [SerializeField]
+    private float _enemyFallHeight;
+
+    private List<EnemyController> _enemyList;
+
     private void Awake()
     {
         Instance = this;
     }
-    //void Start()
-    IEnumerator Start()
+    //IEnumerator Start()
+    void Start()
     {
+        _wallsAreUp = true;
+
         _endCell = new int[2];
 
         _endCell = GetEndCell();
@@ -66,6 +76,8 @@ public class BigMazeGenerator : MonoBehaviour
 
         _wallsToBreak = GetWallsToBreak();
 
+        _enemyList = new List<EnemyController>();
+
         for (int i = 0; i < _mazeWidth; i++)
         {
             for (int j = 0; j < _mazeDepth; j++)
@@ -75,9 +87,10 @@ public class BigMazeGenerator : MonoBehaviour
         }
 
         // start at first cell
-        yield return GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
+        //yield return GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
+        GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
-        //GenerateMaze(null, _mazeGrid[0,0]);    
+        
     }
 
     private int[] GetEndCell()
@@ -128,8 +141,8 @@ public class BigMazeGenerator : MonoBehaviour
     }
 
     // generats maze
-    //private void GenerateMaze(MazeCell previousCell, MazeCell currentCell)
-    private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
+    //private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
+    private void GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
     {
         visitedCellCount++;
         if (currentCell == _mazeGrid[endCell[0], endCell[1]] && currentCell.isVisited == false)
@@ -153,7 +166,7 @@ public class BigMazeGenerator : MonoBehaviour
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
             }
 
-            Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, 1.1f, endCell[1]*10), Quaternion.identity);
+            _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, _enemyFallHeight, endCell[1]*10), Quaternion.identity));
             //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
         }
 
@@ -186,7 +199,7 @@ public class BigMazeGenerator : MonoBehaviour
         ClearWalls(previousCell, currentCell);
 
         // waits before do next
-        yield return new WaitForSeconds(_timeToGenerateWalls);
+        //yield return new WaitForSeconds(_timeToGenerateWalls);
 
         MazeCell nextCell;
 
@@ -198,8 +211,8 @@ public class BigMazeGenerator : MonoBehaviour
             if (nextCell != null)
             {
                 // use yield return for coroutine
-                yield return GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
-                //GenerateMaze(currentCell, nextCell);
+                //yield return GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
+                GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
             }
         } while (nextCell != null);
     }
@@ -323,6 +336,8 @@ public class BigMazeGenerator : MonoBehaviour
     {
         if (!_wallsMoving)
         {
+            _wallsAreUp = false;
+
             _wallsMoving = true;
             for (int i = 0; i < _mazeWidth; i++)
             {
@@ -390,6 +405,45 @@ public class BigMazeGenerator : MonoBehaviour
         _wallsMoving = false;
         _canResetWalls = true;
         FindObjectOfType<PlayerController>().UnfreezePlayer();
+        _wallsAreUp = true;
         //PlayerController.UnfreezePlayer();
+    }
+
+    public void Spawn2Enemies()//Transform transform)
+    {
+        //int playerX = (int)(transform.position.x/10);
+        int playerX = (int)(Camera.main.transform.position.x/10);
+        //int playerZ = (int)(transform.position.z/10);
+        int playerZ = (int)(Camera.main.transform.position.z/10);
+
+        for (int i = 0; i < 2; i++)
+        {
+            int newX = Random.Range(2, 5);
+            int newZ = Random.Range(2, 5);
+
+            int xSpawn = playerX + newX;
+            int zSpawn = playerZ + newZ;
+
+            if (xSpawn >= _mazeWidth)
+            {
+                xSpawn = playerX - newX;
+            }
+            if (zSpawn >= _mazeDepth)
+            {
+                zSpawn = playerZ - newZ;
+            }
+            Debug.Log("New X = " + xSpawn + ", New Z = " + zSpawn);
+            _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3((xSpawn * 10), _enemyFallHeight, (zSpawn * 10)), Quaternion.identity));
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        for (int i = _enemyList.Count - 1; i >0 ;i--)
+        {
+            //_enemyList[i].GetComponent<PlayableGraph>().Destroy();
+            Destroy(_enemyList[i]);
+        }
+
     }
 }

@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 0
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.10363114, g: 0.118089356, b: 0.15471691, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 7e1e5781d39549148abcbf66c428df00, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -509,7 +509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &633069177
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -726,7 +726,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 1}
+  m_BackGroundColor: {r: 0.037671775, g: 0.07731935, b: 0.13962269, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 1
@@ -829,8 +829,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mazeCellPrefab: {fileID: 5943907839882638597, guid: 9b9706fbc3cb9d043a68370899aeddbd, type: 3}
   _enemyControllerPrefab: {fileID: 1129351329254573856, guid: 305e90fb986ef364cb28129e681a4296, type: 3}
-  _mazeWidth: 20
-  _mazeDepth: 20
+  _mazeWidth: 10
+  _mazeDepth: 10
   _materials:
   - {fileID: 2100000, guid: cb29e38dd9a35fe4090dc02e60f14cc4, type: 2}
   - {fileID: 2100000, guid: 0e742ad8d803c3b43ba6635f4b381d47, type: 2}
@@ -839,6 +839,7 @@ MonoBehaviour:
   _timeToGenerateWalls: 0
   _timeToLowerWalls: 2
   _timeToRaiseWalls: 0.05
+  _enemyFallHeight: 30
 --- !u!1 &1208205983
 GameObject:
   m_ObjectHideFlags: 0
