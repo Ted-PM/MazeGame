@@ -87,7 +87,7 @@ public class EnemyController : MonoBehaviour
 
     public void IncreaseEnemySpeed()
     {
-        GetComponent<NavMeshAgent>().speed += 2; ;
+        GetComponent<NavMeshAgent>().speed += 2;
     }
 
     public void DecreaseEnemySpeed()
@@ -245,5 +245,13 @@ public class EnemyController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (gameObject != null)
+        {
+            Destroy(gameObject);
+        }
     }
 }

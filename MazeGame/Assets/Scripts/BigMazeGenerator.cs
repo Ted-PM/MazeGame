@@ -58,6 +58,9 @@ public class BigMazeGenerator : MonoBehaviour
 
     private List<EnemyController> _enemyList;
 
+    [SerializeField]
+    private GameObject _pathLinePrefab;
+
     private void Awake()
     {
         Instance = this;
@@ -65,6 +68,7 @@ public class BigMazeGenerator : MonoBehaviour
     //IEnumerator Start()
     void Start()
     {
+        //_pathLine.SetActive(false);
         _wallsAreUp = true;
 
         _endCell = new int[2];
@@ -350,7 +354,10 @@ public class BigMazeGenerator : MonoBehaviour
 
             for (int i = 0; i < _enemyList.Count(); i++)
             {
-                _enemyList[i].IncreaseEnemySpeed();
+                if (_enemyList[i] != null)
+                {
+                    _enemyList[i].IncreaseEnemySpeed();
+                }
             }
 
             StartCoroutine(CanResetWallsWait());
@@ -391,13 +398,14 @@ public class BigMazeGenerator : MonoBehaviour
     {
         if (!_wallsMoving)
         {
-            DisableBestPath();
+            //DisableBestPath();
             Debug.Log("start reset");
             for (int i = 0; i < _mazeWidth; i++)
             {
                 for (int j = 0; j < _mazeDepth; j++)
                 {
                     _mazeGrid[i, j].ResetAll(_mazeWidth, _mazeDepth, _timeToRaiseWalls);
+                    StopCoroutine("DisplayBestPath");
                 }
             }
 
@@ -417,7 +425,10 @@ public class BigMazeGenerator : MonoBehaviour
 
         for (int i = 0; i < _enemyList.Count(); i++)
         {
-            _enemyList[i].DecreaseEnemySpeed();
+            if (_enemyList[i] != null)
+            {
+                _enemyList[i].DecreaseEnemySpeed();
+            }
         }
         //PlayerController.UnfreezePlayer();
     }
@@ -466,6 +477,7 @@ public class BigMazeGenerator : MonoBehaviour
         //int[,] bestPathIndexes = new int[2, (_mazeDepth >= _mazeWidth ?  _mazeDepth : _mazeWidth)];
         //int[,] bestPath = new int[_mazeWidth, _mazeDepth];
         bool[,] nodeVisited = new bool[_mazeWidth, _mazeDepth];
+        List<MazeCell> bestPath = new List<MazeCell>();
 
         //bool pathFound = false;
         Transform playerPosition = Camera.main.transform;
@@ -476,13 +488,65 @@ public class BigMazeGenerator : MonoBehaviour
 
         if (_mazeGrid[playerX, playerZ] != _mazeGrid[_endCell[0], _endCell[1]])
         {
-            FindBestPathRec(nodeVisited, playerX, playerZ, ref minCost);
+            FindBestPathRec(nodeVisited, playerX, playerZ, ref minCost, ref bestPath);
+
+            StartCoroutine(DisplayBestPath(bestPath));
+
+            //for (int i = bestPath.Count() - 1; i >= 0; i--)
+            //{
+                
+            //    //DisplayBestPath(bestPath[i]);
+            //}
         }
 
 
     }
 
-    private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost)
+    private IEnumerator DisplayBestPath(List<MazeCell> bestPath)
+    {
+        var _pathLine = Instantiate(_pathLinePrefab, bestPath[bestPath.Count() - 1].transform.position + new Vector3(0,5,0), Quaternion.identity);
+        //_pathLine.SetActive(true);
+        //_pathLine.transform.position = bestPath[bestPath.Count() - 1].transform.position;
+        for (int i = bestPath.Count() - 1; i >= 0; i--)
+        {
+            yield return new WaitForSeconds(0.1f);
+            //_pathLine.transform.position = bestPath[i].transform.position;
+            if (i + 1 < bestPath.Count())
+            {
+                //if (bestPath[i+1].transform.position.x < bestPath[i].transform.position.x)
+                //{
+                //    _pathLine.transform.rotation = Quaternion.
+                //}
+                //targetPosition = targetTransform.position;
+                //targetPosition.y = transform.position.y;
+                _pathLine.transform.LookAt(bestPath[i].transform.position);
+                float time = 0f;
+                float t = 0;
+                //_endPosition = _startPosition + endPosition;
+
+                while (t < 1)
+                {
+                    yield return null;
+                    time += Time.deltaTime;
+                    t = time / 0.2f;
+
+                    _pathLine.transform.localPosition = Vector3.Lerp(bestPath[i+1].transform.position + new Vector3(0, 5, 0), bestPath[i].transform.position + new Vector3(0, 5, 0), t);
+                    //_pathLine.transform.rotation = Vector3.Lerp(bestPath[i+1].transform.rotation, bestPath[i].transform.rotation, t);
+                }
+                    bestPath[i].EnablePathToEnd();
+            }
+        }
+
+        Destroy(_pathLine);
+
+        for (int i = 0; i < bestPath.Count(); i++)
+        {
+            bestPath[i].DisablePathToEnd();
+        }
+
+    }
+
+    private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost, ref List<MazeCell> bestPath)
     {
         Debug.Log("Find best path rec");
         //int[,] bestPathIndexes = new int[_mazeWidth, _mazeDepth];
@@ -520,28 +584,29 @@ public class BigMazeGenerator : MonoBehaviour
 
                 if (CheckLeft(x, z))
                 {
-                    leftTrue = FindBestPathRec(nodeVisted, x - 1, z, ref leftCost);
+                    leftTrue = FindBestPathRec(nodeVisted, x - 1, z, ref leftCost, ref bestPath);
                     if (leftTrue) { result = true; }
                 }
                 if (CheckRight(x, z))
                 {
-                    rightTrue = FindBestPathRec(nodeVisted, x + 1, z, ref rightCost);
+                    rightTrue = FindBestPathRec(nodeVisted, x + 1, z, ref rightCost, ref bestPath);
                     if (rightTrue) { result = true; }
                 }
                 if (CheckFront(x, z))
                 {
-                    frontTrue = FindBestPathRec(nodeVisted, x, z+1, ref frontCost);
+                    frontTrue = FindBestPathRec(nodeVisted, x, z+1, ref frontCost, ref bestPath);
                     if (frontTrue) { result = true; }
                 }
                 if(CheckBack(x, z))
                 {
-                    backTrue = FindBestPathRec(nodeVisted, x, z - 1, ref backCost);
+                    backTrue = FindBestPathRec(nodeVisted, x, z - 1, ref backCost, ref bestPath);
                     if (backTrue) { result = true; }
                 }
 
                 if (result)
                 {
-                    _mazeGrid[x, z].EnablePathToEnd();
+                    bestPath.Add(_mazeGrid[x, z]);
+                    //_mazeGrid[x, z].EnablePathToEnd();
                     //StartCoroutine(WaitThenShowPath(x, z));
 
                     //if ((leftTrue && !rightTrue && !frontTrue && !backTrue))
@@ -677,12 +742,6 @@ public class BigMazeGenerator : MonoBehaviour
 
         return result;
         
-    }
-
-    private IEnumerator WaitThenShowPath(int x, int z)
-    {
-        yield return new WaitForSeconds(0.05f);
-        _mazeGrid[x, z].EnablePathToEnd();
     }
 
     private bool CheckLeft(int x, int z)
