@@ -64,9 +64,19 @@ public class MazeCell : MonoBehaviour
 
     public void EnablePathToEnd()
     {
+        //yield return new WaitForSeconds(0.05f);
         Debug.Log("Path enabled: " + transform.position);
+        //WaitTheDisplayEnd();
         _pathToEndIndicator.SetActive(true);
+        //yield return null;
     }
+
+    //private IEnumerator WaitTheDisplayEnd()
+    //{
+    //    yield return new WaitForSeconds(0.05f);
+    //    _pathToEndIndicator.SetActive(true);
+    //}
+
 
     public void DisablePathToEnd()
     {

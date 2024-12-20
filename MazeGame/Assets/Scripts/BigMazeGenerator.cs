@@ -541,6 +541,9 @@ public class BigMazeGenerator : MonoBehaviour
 
                 if (result)
                 {
+                    _mazeGrid[x, z].EnablePathToEnd();
+                    //StartCoroutine(WaitThenShowPath(x, z));
+
                     //if ((leftTrue && !rightTrue && !frontTrue && !backTrue))
                     //{
                     //    cost += leftCost;
@@ -625,25 +628,30 @@ public class BigMazeGenerator : MonoBehaviour
                     if (trueDirection == 0)
                     {
                         cost += leftCost;
+                        //StartCoroutine(WaitThenShowPath(x - 1, z));
                         //_mazeGrid[x-1, z].EnablePathToEnd();
                     }
                     else if (trueDirection == 1)
                     {
                         cost += rightCost;
+                        //StartCoroutine(WaitThenShowPath(x + 1, z));
                         //_mazeGrid[x+1, z].EnablePathToEnd();
                     }
                     else if (trueDirection == 2)
                     {
                         cost += frontCost;
+                        //StartCoroutine(WaitThenShowPath(x, z+1));
                         //_mazeGrid[x, z+1].EnablePathToEnd();
                     }
                     else if (trueDirection == 3)
                     {
                         cost += backCost;
+                        //StartCoroutine(WaitThenShowPath(x, z-1));
                         //_mazeGrid[x, z-1].EnablePathToEnd();
                     }
 
-                    _mazeGrid[x , z].EnablePathToEnd();
+                    //StartCoroutine(WaitThenShowPath(x, z));
+                    //_mazeGrid[x, z].EnablePathToEnd();
 
                     //if (leftCost > rightCost && leftCost > backCost && leftCost > frontCost)
                     //{
@@ -669,6 +677,12 @@ public class BigMazeGenerator : MonoBehaviour
 
         return result;
         
+    }
+
+    private IEnumerator WaitThenShowPath(int x, int z)
+    {
+        yield return new WaitForSeconds(0.05f);
+        _mazeGrid[x, z].EnablePathToEnd();
     }
 
     private bool CheckLeft(int x, int z)
