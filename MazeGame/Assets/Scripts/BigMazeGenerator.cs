@@ -6,7 +6,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.AI;
 using UnityEngine.Playables;
-using UnityEditor.SceneManagement;
+//using UnityEditor.SceneManagement;
 
 public class BigMazeGenerator : MonoBehaviour
 {
