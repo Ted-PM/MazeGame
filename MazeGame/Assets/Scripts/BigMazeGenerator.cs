@@ -506,6 +506,7 @@ public class BigMazeGenerator : MonoBehaviour
 
                 //bool tempResult = false;
 
+                // get cost of path to compare later, use bool to see if acc lead to exit
                 int leftCost = 0;
                 bool leftTrue = false;
                 int rightCost = 0;
