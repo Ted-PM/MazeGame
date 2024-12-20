@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.AI;
 using UnityEngine.Playables;
+using UnityEditor.SceneManagement;
 
 public class BigMazeGenerator : MonoBehaviour
 {
@@ -347,6 +348,11 @@ public class BigMazeGenerator : MonoBehaviour
                 }
             }
 
+            for (int i = 0; i < _enemyList.Count(); i++)
+            {
+                _enemyList[i].IncreaseEnemySpeed();
+            }
+
             StartCoroutine(CanResetWallsWait());
 
             StartCoroutine(WaitBeforeResetWalls(time));
@@ -357,6 +363,7 @@ public class BigMazeGenerator : MonoBehaviour
     {
         yield return new WaitForSeconds(_timeToLowerWalls);
 
+        FindBestPath();
         _wallsMoving = false;
         _canResetWalls = false;
     }
@@ -384,6 +391,7 @@ public class BigMazeGenerator : MonoBehaviour
     {
         if (!_wallsMoving)
         {
+            DisableBestPath();
             Debug.Log("start reset");
             for (int i = 0; i < _mazeWidth; i++)
             {
@@ -406,6 +414,11 @@ public class BigMazeGenerator : MonoBehaviour
         _canResetWalls = true;
         FindObjectOfType<PlayerController>().UnfreezePlayer();
         _wallsAreUp = true;
+
+        for (int i = 0; i < _enemyList.Count(); i++)
+        {
+            _enemyList[i].DecreaseEnemySpeed();
+        }
         //PlayerController.UnfreezePlayer();
     }
 
@@ -445,5 +458,282 @@ public class BigMazeGenerator : MonoBehaviour
             Destroy(_enemyList[i]);
         }
 
+    }
+
+    private void FindBestPath()
+    {
+        Debug.Log("Find best path start");
+        //int[,] bestPathIndexes = new int[2, (_mazeDepth >= _mazeWidth ?  _mazeDepth : _mazeWidth)];
+        //int[,] bestPath = new int[_mazeWidth, _mazeDepth];
+        bool[,] nodeVisited = new bool[_mazeWidth, _mazeDepth];
+
+        //bool pathFound = false;
+        Transform playerPosition = Camera.main.transform;
+        int playerX = (int)(playerPosition.transform.position.x/10);
+        int playerZ = (int)(playerPosition.transform.position.z / 10);
+
+        int minCost = 0;
+
+        if (_mazeGrid[playerX, playerZ] != _mazeGrid[_endCell[0], _endCell[1]])
+        {
+            FindBestPathRec(nodeVisited, playerX, playerZ, ref minCost);
+        }
+
+
+    }
+
+    private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost)
+    {
+        Debug.Log("Find best path rec");
+        //int[,] bestPathIndexes = new int[_mazeWidth, _mazeDepth];
+        bool result = false;
+        cost++;
+
+        if (x >= _mazeWidth || z >= _mazeDepth || x < 0 || z < 0)
+        {
+            result = false;
+        }
+        else if (_mazeGrid[x,z] == _mazeGrid[_endCell[0], _endCell[1]])
+        {
+            result = true;
+        }
+        else
+        {
+            if (!nodeVisted[x, z])
+            {
+                Debug.Log("Visiting x: " + x + ",z: " + z);
+                nodeVisted[x,z] = true;
+
+                //bool tempResult = false;
+
+                int leftCost = 0;
+                bool leftTrue = false;
+                int rightCost = 0;
+                bool rightTrue = false;
+                int frontCost = 0;
+                bool frontTrue = false;
+                int backCost = 0;
+                bool backTrue = false;
+
+                int trueDirection = 3;
+
+                if (CheckLeft(x, z))
+                {
+                    leftTrue = FindBestPathRec(nodeVisted, x - 1, z, ref leftCost);
+                    if (leftTrue) { result = true; }
+                }
+                if (CheckRight(x, z))
+                {
+                    rightTrue = FindBestPathRec(nodeVisted, x + 1, z, ref rightCost);
+                    if (rightTrue) { result = true; }
+                }
+                if (CheckFront(x, z))
+                {
+                    frontTrue = FindBestPathRec(nodeVisted, x, z+1, ref frontCost);
+                    if (frontTrue) { result = true; }
+                }
+                if(CheckBack(x, z))
+                {
+                    backTrue = FindBestPathRec(nodeVisted, x, z - 1, ref backCost);
+                    if (backTrue) { result = true; }
+                }
+
+                if (result)
+                {
+                    //if ((leftTrue && !rightTrue && !frontTrue && !backTrue))
+                    //{
+                    //    cost += leftCost;
+                    //    _mazeGrid[x-1, z].EnablePathToEnd();
+                    //}
+                    //if (!leftTrue && rightTrue && !frontTrue && !backTrue)
+                    //{
+                    //    cost += rightCost;
+                    //    _mazeGrid[x +1, z].EnablePathToEnd();
+                    //}
+                    //if (!leftTrue && !rightTrue && frontTrue && !backTrue)
+                    //{
+                    //    cost += frontCost;
+                    //    _mazeGrid[x , z+1].EnablePathToEnd();
+                    //}
+                    //if (!leftTrue && !rightTrue && !frontTrue && backTrue)
+                    //{
+                    //    cost += backCost;
+                    //    _mazeGrid[x, z-1].EnablePathToEnd();
+                    //}
+
+                    // left = 0, right = 1, front = 2, back = 3
+
+                    if (leftTrue)
+                    {
+                        if (rightTrue && leftCost < rightCost)
+                        {
+                            trueDirection = 0;
+                        }
+                        else if (rightTrue)
+                        {
+                            trueDirection = 1;
+                        }
+                        if (frontTrue && leftCost < frontCost)
+                        {
+                            trueDirection = 0;
+                        }
+                        else if (frontTrue)
+                        {
+                            trueDirection = 2;
+                        }
+                        if (backTrue && leftCost < backCost)
+                        {
+                            trueDirection = 0;
+                        }
+                        else if (backTrue)
+                        {
+                            trueDirection = 3;
+                        }
+                    }
+                    if (rightTrue)
+                    {
+                        if (frontTrue && rightCost < frontCost)
+                        {
+                            trueDirection = 1;
+                        }
+                        else if (frontTrue)
+                        {
+                            trueDirection = 2;
+                        }
+                        if (backTrue && rightCost < backCost)
+                        {
+                            trueDirection = 1;
+                        }
+                        else if (backTrue)
+                        {
+                            trueDirection = 3;
+                        }
+                    }
+                    if (frontTrue)
+                    {
+                        if (backTrue && frontCost < backCost)
+                        {
+                            trueDirection = 2;
+                        }
+                        else if (backTrue)
+                        {
+                            trueDirection = 3;
+                        }
+                    }
+
+                    if (trueDirection == 0)
+                    {
+                        cost += leftCost;
+                        //_mazeGrid[x-1, z].EnablePathToEnd();
+                    }
+                    else if (trueDirection == 1)
+                    {
+                        cost += rightCost;
+                        //_mazeGrid[x+1, z].EnablePathToEnd();
+                    }
+                    else if (trueDirection == 2)
+                    {
+                        cost += frontCost;
+                        //_mazeGrid[x, z+1].EnablePathToEnd();
+                    }
+                    else if (trueDirection == 3)
+                    {
+                        cost += backCost;
+                        //_mazeGrid[x, z-1].EnablePathToEnd();
+                    }
+
+                    _mazeGrid[x , z].EnablePathToEnd();
+
+                    //if (leftCost > rightCost && leftCost > backCost && leftCost > frontCost)
+                    //{
+                    //    cost += leftCost;
+                    //    _mazeGrid[x, z].EnablePathToEnd();
+                    //}
+                }
+
+                //if (result)
+                //{
+                //    _mazeGrid[x, z].EnablePathToEnd();
+                //}
+                //if (FindBestPathRec(nodeVisted, x + 1, z) || FindBestPathRec(nodeVisted, x - 1, z) || FindBestPathRec(nodeVisted, x, z + 1) || FindBestPathRec(nodeVisted, x , z-1))
+                //{
+                //    Debug.Log("Enable Node x: " + x + ", z: " + z);
+                //    _mazeGrid[x, z].EnablePathToEnd();
+                //    result = true;
+                //}
+
+                //FindBestPathRec(nodeVisted)
+            }
+        }
+
+        return result;
+        
+    }
+
+    private bool CheckLeft(int x, int z)
+    {
+        bool result = false;
+
+        // cells start at 0, so check if not too far left
+        if (x - 1 >= 0 && _mazeGrid[x,z].GetLeftWallStatus())
+        {
+            result = true;
+            Debug.Log("left true, x: " + (x-1) + ",z " + z);
+        }
+
+        return result;
+    }
+
+    private bool CheckRight(int x, int z)
+    {
+        bool result = false;
+
+        //right
+        if (x + 1 < _mazeWidth && _mazeGrid[x, z].GetRightWallStatus())
+        {
+            result = true;
+            Debug.Log("Right true, x: " + (x + 1) + ",z " + z);
+        }
+
+        return result;
+    }
+
+    private bool CheckFront(int x, int z)
+    {
+        bool result = false;
+
+        //right
+        if (z + 1 < _mazeDepth && _mazeGrid[x, z].GetFrontWallStatus())
+        {
+            Debug.Log("front true, x: " + (x) + ",z " + (z+1));
+            result = true;
+        }
+
+        return result;
+    }
+    private bool CheckBack(int x, int z)
+    {
+        bool result = false;
+
+        //right
+        if (z - 1 >= 0 && _mazeGrid[x, z].GetBackWallStatus())
+        {
+            result = true;
+            Debug.Log("back true, x: " + (x) + ",z " + (z-1));
+        }
+
+        return result;
+    }
+
+    private void DisableBestPath()
+    {
+        for (int i = 0; i < _mazeWidth; i++)
+        {
+            for (int j = 0; j < _mazeDepth; j++)
+            {
+                Debug.Log("Disable Node x: " + i + ", z: " + j);
+                _mazeGrid[i,j].DisablePathToEnd();
+            }
+        }
     }
 }

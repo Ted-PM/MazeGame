@@ -79,8 +79,20 @@ public class EnemyController : MonoBehaviour
             //    BigMazeGenerator.Instance.Spawn2Enemies();
             //    Destroy(gameObject);
             //}
+
+            //Debug.Log("Enemy Speed: " + GetComponent<NavMeshAgent>().speed);
         }
         //LookAt();
+    }
+
+    public void IncreaseEnemySpeed()
+    {
+        GetComponent<NavMeshAgent>().speed += 2; ;
+    }
+
+    public void DecreaseEnemySpeed()
+    {
+        GetComponent<NavMeshAgent>().speed -=2;
     }
 
     private void OnCollisionEnter(Collision collision)

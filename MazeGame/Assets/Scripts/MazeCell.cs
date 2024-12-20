@@ -47,6 +47,9 @@ public class MazeCell : MonoBehaviour
     [SerializeField]
     private float _ceelingHeight;
 
+    [SerializeField]
+    private GameObject _pathToEndIndicator;
+
     public bool isVisited {  get; private set; }
 
     public bool isRightEnd { get; private set; }
@@ -54,6 +57,21 @@ public class MazeCell : MonoBehaviour
 
     private Vector3 endPosition = new Vector3(0, -0.5f, 0);
 
+    private void Start()
+    {
+        _pathToEndIndicator.SetActive(false);
+    }
+
+    public void EnablePathToEnd()
+    {
+        Debug.Log("Path enabled: " + transform.position);
+        _pathToEndIndicator.SetActive(true);
+    }
+
+    public void DisablePathToEnd()
+    {
+        _pathToEndIndicator.SetActive(false);
+    }
     //private void Awake()
     //{
     //    _leftWall = GameObject.Find("LeftWall").GetComponentInChildren<MazeWall>();
@@ -133,11 +151,16 @@ public class MazeCell : MonoBehaviour
         _leftWall.SetActive(false);
     }
 
+    public bool GetLeftWallStatus() { return _leftVisited; }
+
     public void ClearRightWall()
     {
         _rightVisited = true;
         _rightWall.SetActive(false);
     }
+
+    public bool GetRightWallStatus() { return _rightVisited; }
+
 
     public void ClearFrontWall()
     {
@@ -145,11 +168,15 @@ public class MazeCell : MonoBehaviour
         _frontWall.SetActive(false);
     }
 
+    public bool GetFrontWallStatus() { return _frontVisited; }
+
     public void ClearBackWall()
     {
         _backsVisited = true;
         _backWall.SetActive(false);
     }
+
+    public bool GetBackWallStatus() { return _backsVisited; }
 
     public void ClearAll(int mazeWidth, int mazeDepth, float lowerTime)
     {
