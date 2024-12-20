@@ -228,13 +228,15 @@ public class MazeCell : MonoBehaviour
         {
             //_rightWall.SetActive(false);
             _rightWall.GetComponentInChildren<MeshRenderer>().enabled = false;
-            _rightWall.GetComponent<BoxCollider>().enabled = false;
+            _rightWall.tag = "End";
+            //_rightWall.GetComponent<BoxCollider>().enabled = false;
             isRightEnd = true;
         }
         else
         {
             _frontWall.GetComponentInChildren<MeshRenderer>().enabled = false;
-            _frontWall.GetComponent<BoxCollider>().enabled = false;
+            _frontWall.tag = "End";
+            //_frontWall.GetComponent<BoxCollider>().enabled = false;
             isFrontEnd = true;
         }
     }

@@ -1,18 +1,102 @@
+//using Microsoft.Unity.VisualStudio.Editor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public static GameManager Instance;
+
+    //[SerializeField]
+    //private GameObject _deathScreen;
+    //[SerializeField]
+    //private Image _blackScreen;
+    //bool gameStarted = false;
+
+    private void Awake()
     {
-        
+        Instance = this;
+
+
+        //DontDestroyOnLoad(gameStarted);
+        //SceneManager.LoadScene("StartMenu");
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Start()
     {
-        
+
+        //_deathScreen.SetActive(false);
     }
+
+    public void WelcomeMenu()
+    {
+        SceneManager.LoadScene("StartMenu");
+    }
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("MainGame");
+    }
+
+    public void PlayerDead()
+    {
+        SceneManager.LoadScene("DeadMenu");
+        //_deathScreen.SetActive(true);
+        //Fade(false);
+    }
+
+    public void PlayerWin()
+    {
+        SceneManager.LoadScene("WinScene");
+    }
+
+    //private IEnumerator Fade(bool fadeOut)
+    //{
+    //    //_deathScreen.GetComponentInChildren<GameObject>().name = "DeathPanel";
+    //    //Image blackScreen = _deathScreen.GetComponentInChildren<Image>();
+
+    //    if (fadeOut)
+    //    {
+    //        _blackScreen.color = new Color(1, 1, 1, 1);
+    //        // loop over 1 second backwards
+    //        for (float i = 1; i >= 0; i -= Time.deltaTime)
+    //        {
+    //            // set color with i as alpha
+    //            _blackScreen.color = new Color(1, 1, 1, i);
+    //            yield return null;
+    //        }
+    //    }
+    //    // fade from transparent to opaque
+    //    else
+    //    {
+    //        _blackScreen.color = new Color(1, 1, 1, 0);
+    //        // loop over 1 second
+    //        for (float i = 0; i <= 1; i += Time.deltaTime)
+    //        {
+    //            // set color with i as alpha
+    //            _blackScreen.color = new Color(1, 1, 1, i);
+    //            yield return null;
+    //        }
+    //    }
+    //    // loop over 1 second backwards
+    //    //for (float i = 1; i >= 0; i -= Time.deltaTime)
+    //    //{
+    //    //    // set color with i as alpha
+    //    //    _blackScreen.color = new Color(1, 1, 1, i);
+    //    //    yield return null;
+    //    //}
+    //    //while (blackScreen.)
+    //    //{
+    //    //yield return null;
+    //    //blackScreen.ChangeAl
+    //}
+    
+
+    //public void RestartGame()
+    //{
+
+    //}
 }

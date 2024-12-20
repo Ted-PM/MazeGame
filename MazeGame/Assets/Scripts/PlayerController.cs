@@ -94,6 +94,15 @@ public class PlayerController : MonoBehaviour
         {
             canJump = true;
         }
+        if (collision.gameObject.tag == "Enemy")
+        {
+            GetComponentInChildren<CapsuleCollider>().enabled = false;
+            GameManager.Instance.PlayerDead();
+        }
+        if (collision.gameObject.tag == "End")
+        {
+            GameManager.Instance.PlayerWin();
+        }
     }
 
     void lookAtMouse()

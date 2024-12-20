@@ -36,7 +36,7 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
+        //DontDestroyOnLoad(this.gameObject);
 
         _enemyCollider = GetComponent<CapsuleCollider>();
         //m_Renderer = GetComponent<Renderer>();

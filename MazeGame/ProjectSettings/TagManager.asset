@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Floor
   - Wall
+  - Enemy
+  - End
   layers:
   - Default
   - TransparentFX
