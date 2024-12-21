@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class MazeWall : MonoBehaviour
 {
-    private NavMeshObstacle _navMeshObstacle;
-    private BoxCollider _boxCollider;
+    //private NavMeshObstacle _navMeshObstacle;
+    private List<NavMeshObstacle> _navMeshObstacle;
+    //private BoxCollider _boxCollider;
     public bool canRaise = false;
     public bool canLower = false;
 
@@ -16,15 +18,28 @@ public class MazeWall : MonoBehaviour
 
     private void Start()
     {
-        _boxCollider = GetComponentInParent<BoxCollider>();
-        _navMeshObstacle = GetComponent<NavMeshObstacle>();
+        
+        //_boxCollider = GetComponentInParent<BoxCollider>();
+        if (GetComponent<NavMeshObstacle>() != null)
+        {
+            _navMeshObstacle = new List<NavMeshObstacle>();
+            _navMeshObstacle.Add(GetComponent<NavMeshObstacle>());
+        }
+        else
+        {
+            _navMeshObstacle = new List<NavMeshObstacle>(this.GetComponentsInChildren<NavMeshObstacle>());
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    _navMeshObstacle.Add(GetComponentInChildren<NavMeshObstacle>());
+            //}
+        }
         _startPosition = transform.localPosition;
         _endPosition = _startPosition + new Vector3(0, -9.9f, 0);
         canLower = true;
         canRaise = false;
     }
 
-    public IEnumerator LowerWall(float lowerTime) //Vector3 endPosition, 
+    public IEnumerator LowerWall(float lowerTime, Collider _collider) //Vector3 endPosition, 
     {
         //Debug.Log("cuurent pos: " + transform.localPosition.y);
         //Debug.Log("goal pos: " + _endPosition.y);
@@ -50,9 +65,12 @@ public class MazeWall : MonoBehaviour
             }
 
             //_navMeshObstacle.carving = false;
-            _navMeshObstacle.enabled = false;
+            for (int i = 0; i < _navMeshObstacle.Count; i++)
+            {
+                _navMeshObstacle[i].enabled = false;
+            }
             //_boxCollider.transform.localPosition -= new Vector3 (0f, 11f, 0f);
-            _boxCollider.enabled = false;
+            _collider.enabled = false;
         }
         else
         {
@@ -60,7 +78,7 @@ public class MazeWall : MonoBehaviour
         }
     }
 
-    public IEnumerator RaiseWall(float raiseTime)
+    public IEnumerator RaiseWall(float raiseTime, Collider _collider)
     {
         //Debug.Log("cuurent pos: " + transform.localPosition.y);
         //Debug.Log("goal pos: " + _endPosition.y);
@@ -77,7 +95,10 @@ public class MazeWall : MonoBehaviour
 
             Vector3 currentPosition = transform.localPosition;
 
-            _navMeshObstacle.enabled = true;
+            for (int i = 0; i < _navMeshObstacle.Count; i++)
+            {
+                _navMeshObstacle[i].enabled = true;
+            }
 
             while (t < 1)
             {
@@ -91,7 +112,7 @@ public class MazeWall : MonoBehaviour
             //_boxCollider.transform.localPosition += new Vector3(0f, 11f, 0f);
             //_navMeshObstacle.carving = true;
 
-            _boxCollider.enabled = true;
+            _collider.enabled = true;
         }
         else
         {

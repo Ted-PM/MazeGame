@@ -222,6 +222,22 @@ public class BigMazeGenerator : MonoBehaviour
         } while (nextCell != null);
     }
 
+    private bool TrueFalse()
+    {
+        int temp = 0;
+        temp = Random.Range(0, 2);
+
+        return temp == 0;
+    }
+
+    private bool TrueFalseFalse()
+    {
+        int temp = 0;
+        temp = Random.Range(0, 3);
+
+        return temp == 0;
+    }
+
     // gets random unvisted cell (adjacent to current cell)
     private MazeCell GetUnvisitedCell(MazeCell currentCell)
     {
@@ -306,6 +322,10 @@ public class BigMazeGenerator : MonoBehaviour
             // went left to right, so prev clear right & current clear left
             previousCell.ClearRightWall();
             currentCell.ClearLeftWall();
+            if (TrueFalseFalse())
+            {
+                currentCell.AddLeftDoor();
+            }
             return;
         }
 
@@ -315,6 +335,10 @@ public class BigMazeGenerator : MonoBehaviour
             // went right to left, so prev clear left & current clear right
             previousCell.ClearLeftWall();
             currentCell.ClearRightWall();
+            if (TrueFalseFalse())
+            { 
+                currentCell.AddRightDoor(); 
+            }
             return;
         }
 
@@ -324,6 +348,10 @@ public class BigMazeGenerator : MonoBehaviour
             // went down to up, so prev clear up & current clear down
             previousCell.ClearFrontWall();
             currentCell.ClearBackWall();
+            if (TrueFalseFalse())
+            {
+                currentCell.AddBackDoor();
+            }
             return;
         }
 
@@ -333,6 +361,10 @@ public class BigMazeGenerator : MonoBehaviour
             // went up to down, so prev clear down & current clear up
             previousCell.ClearBackWall();
             currentCell.ClearFrontWall();
+            if (TrueFalseFalse())
+            {
+                currentCell.AddFrontDoor();
+            }
             return;
         }
     }
