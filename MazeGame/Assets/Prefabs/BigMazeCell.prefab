@@ -906,9 +906,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _leftWall: {fileID: 3260604740641991589}
+  _leftDoor: {fileID: 0}
   _rightWall: {fileID: 1692358163576064251}
+  _rightDoor: {fileID: 0}
   _frontWall: {fileID: 5544002344126867416}
+  _frontDoor: {fileID: 0}
   _backWall: {fileID: 959420473070882426}
+  _backDoor: {fileID: 0}
   _frontLeftCorner: {fileID: 4441680773480890707}
   _frontRightCorner: {fileID: 8803954411008428418}
   _backLeftCorner: {fileID: 2738694707559212077}

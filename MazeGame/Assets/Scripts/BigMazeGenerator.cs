@@ -201,6 +201,11 @@ public class BigMazeGenerator : MonoBehaviour
         }
 
         currentCell.Visit();
+        ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x/10), (int)(currentCell.transform.position.z/10));
+        //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        //ItemSpawner.Instance.SpawnWallItemFront((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        //ItemSpawner.Instance.SpawnWallItemBack((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         ClearWalls(previousCell, currentCell);
 
         // waits before do next
