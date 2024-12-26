@@ -446,6 +446,7 @@ public class BigMazeGenerator : MonoBehaviour
                 if (_enemyList[i] != null)
                 {
                     _enemyList[i].IncreaseEnemySpeed();
+                    _enemyList[i].PlayGrowl();
                 }
             }
 

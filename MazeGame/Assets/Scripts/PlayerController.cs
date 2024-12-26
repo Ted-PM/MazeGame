@@ -16,6 +16,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float waitBeforeResetWallsTime;
 
+    [SerializeField]
+    private AudioSource _step;
+    private bool _stepSoundPlaying;
+    private bool _isWalking;
+
+    [SerializeField]
+    private AudioSource _heartBeat;
+
     Collider _collider;
 
     bool canJump;
@@ -35,8 +43,12 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        _heartBeat.Play();
         canJump = true;
         isSprinting = false;
+        _stepSoundPlaying = false;
+        _isWalking = false;
+        //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
     void Update()
@@ -62,20 +74,51 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKey("w"))
         {
+            //StartCoroutine(WalkingSound());
+            if (!_stepSoundPlaying)
+            {
+                _isWalking = true;
+                StartCoroutine(WalkSound());
+            }
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
         }
         if (Input.GetKey("s"))
         {
+            if (!_stepSoundPlaying)
+            {
+                _isWalking = true;
+                StartCoroutine(WalkSound());
+            }
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
         }
         if (Input.GetKey("a"))
         {
+            if (!_stepSoundPlaying)
+            {
+                _isWalking = true;
+                StartCoroutine(WalkSound());
+            }
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
         }
         if (Input.GetKey("d"))
         {
+            if (!_stepSoundPlaying)
+            {
+                _isWalking = true;
+                StartCoroutine(WalkSound());
+            }
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         }
+        if (!Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
+        {
+            if (_stepSoundPlaying)
+            {
+                StopCoroutine(WalkSound());
+                _stepSoundPlaying = false;
+                _isWalking = false;
+            }
+        }
+
         if (Input.GetKey(KeyCode.Space) && canJump)
         {
             canJump = false;
@@ -95,6 +138,52 @@ public class PlayerController : MonoBehaviour
         //else
         //{
         //    StartCoroutine(SprintCooldown());
+        //}
+    }
+
+    //private void WalkingSound()
+    //{
+    //    //AudioSource tempStep = _step;
+    //    if (!_step.isPlaying && !isSprinting && canJump)
+    //    {
+    //        _step.Play();
+    //    }
+    //    //yield return new WaitForSeconds(.5f);
+    //    //if (tempStep.isPlaying)
+    //    //{
+    //    //    tempStep.Stop();
+    //    //}
+    //    //else if (isSprinting)
+    //    //{
+
+    //    //}
+    //}
+
+    private IEnumerator WalkSound()
+    {
+        if (canJump && _isWalking && isSprinting)
+        {
+            _stepSoundPlaying = true;
+            if (!_step.isPlaying)
+            {
+                _step.Play();
+            }
+            yield return new WaitForSeconds(.3f);
+            _step.Stop();
+            StartCoroutine(WalkSound());
+        }
+        else if (canJump && _isWalking)
+        {
+            _stepSoundPlaying = true;
+            _step.Play();
+            yield return new WaitForSeconds(.7f);
+            _step.Stop();
+            StartCoroutine(WalkSound());
+        }
+        //else
+        //{
+        //    _stepSoundPlaying = false;
+        //    yield return null;
         //}
     }
 
@@ -180,6 +269,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Floor")
         {
             canJump = true;
+            StartCoroutine(WalkSound());
         }
         if (collision.gameObject.tag == "Enemy")
         {

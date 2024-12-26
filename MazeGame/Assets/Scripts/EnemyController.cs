@@ -16,6 +16,8 @@ public class EnemyController : MonoBehaviour
 
     private CapsuleCollider _enemyCollider;
 
+    [SerializeField]
+    private AudioSource _growlSound;
     //Renderer m_Renderer;
 
     //public GameObject _leftEye;
@@ -53,6 +55,13 @@ public class EnemyController : MonoBehaviour
         //healthBarBG.GetComponent<Image>()
     }
 
+    public void PlayGrowl()
+    {
+        if (!_growlSound.isPlaying)
+        {
+            _growlSound.Play();
+        }
+    }
     void Update()
     {
         if (landed)
