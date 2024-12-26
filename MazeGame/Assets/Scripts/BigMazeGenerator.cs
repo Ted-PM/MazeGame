@@ -233,8 +233,11 @@ public class BigMazeGenerator : MonoBehaviour
         // visit the current cell (mark it internally as visited)
         currentCell.Visit();
         // spawn a random item on it at it's current position
-        ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x/10), (int)(currentCell.transform.position.z/10));
-        //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        if (TrueFalseFalse())
+        {
+            ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        }
+            //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemFront((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemBack((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
@@ -593,7 +596,7 @@ public class BigMazeGenerator : MonoBehaviour
         List<MazeCell> bestPath = new List<MazeCell>();
 
         Transform playerPosition = Camera.main.transform;
-        int playerX = (int)(playerPosition.transform.position.x/10);
+        int playerX = (int)(playerPosition.transform.position.x / 10);
         int playerZ = (int)(playerPosition.transform.position.z / 10);
 
         int minCost = 0;

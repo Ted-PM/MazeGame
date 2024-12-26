@@ -51,7 +51,10 @@ public class PlayerController : MonoBehaviour
         {
             StopSprinting();
         }
-        WallController();
+        if (FindObjectOfType<BigMazeGenerator>() != null)
+        {
+            WallController();
+        }
         //Debug.Log(sprintRatio);
     }
 

@@ -33,16 +33,19 @@ public class GameManager : MonoBehaviour
 
     public void WelcomeMenu()
     {
+        Cursor.visible = true;
         SceneManager.LoadScene("StartMenu");
     }
 
     public void StartGame()
     {
+        Cursor.visible = false;
         SceneManager.LoadScene("MainGame");
     }
 
     public void PlayerDead()
     {
+        Cursor.visible = true;
         SceneManager.LoadScene("DeadMenu");
         //_deathScreen.SetActive(true);
         //Fade(false);
@@ -50,7 +53,14 @@ public class GameManager : MonoBehaviour
 
     public void PlayerWin()
     {
+        Cursor.visible = true;
         SceneManager.LoadScene("WinScene");
+    }
+
+    public void StartLobby()
+    {
+        Cursor.visible = false;
+        SceneManager.LoadScene("MainLobby");
     }
 
     //private IEnumerator Fade(bool fadeOut)
