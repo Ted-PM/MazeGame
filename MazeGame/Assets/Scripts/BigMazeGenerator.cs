@@ -94,6 +94,9 @@ public class BigMazeGenerator : MonoBehaviour
     [SerializeField]
     private GameObject _pathLinePrefab;
 
+    [SerializeField]
+    private AudioSource _wallsMovingSound;
+
     private void Awake()
     {
         Instance = this;
@@ -430,6 +433,7 @@ public class BigMazeGenerator : MonoBehaviour
             _wallsAreUp = false;
 
             _wallsMoving = true;
+            _wallsMovingSound.Play();
 
             // calls member function of MazeCell to lower all the walls
             for (int i = 0; i < _mazeWidth; i++)
@@ -462,7 +466,7 @@ public class BigMazeGenerator : MonoBehaviour
     private IEnumerator CanResetWallsWait()
     {
         yield return new WaitForSeconds(_timeToLowerWalls);
-
+        _wallsMovingSound.Stop();
         // once walls are at the bottom, allow player to raise walls 
         FindBestPath();
         _wallsMoving = false;
@@ -499,6 +503,7 @@ public class BigMazeGenerator : MonoBehaviour
         // check they aren't moving
         if (!_wallsMoving)
         {
+            _wallsMovingSound.Play();
             // go through all cells and call a member function to raise them 
             for (int i = 0; i < _mazeWidth; i++)
             {
@@ -519,7 +524,7 @@ public class BigMazeGenerator : MonoBehaviour
     private IEnumerator CanRaiseWalls()
     {
         yield return new WaitForSeconds(_timeToRaiseWalls);
-
+        _wallsMovingSound.Stop();
         _wallsMoving = false;
         _canResetWalls = true;
         // because player is frozen when walls begin lowering, unfreeze them when they are done raising
