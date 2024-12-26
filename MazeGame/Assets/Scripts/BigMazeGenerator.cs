@@ -8,56 +8,89 @@ using UnityEngine.AI;
 using UnityEngine.Playables;
 //using UnityEditor.SceneManagement;
 
+/*
+ * Generates whole maze randomly, uses a graph (2D array of maze cells), the maze cells and holds them in array
+ * each maze cell is then "visited" using a depth first search, is tagged as visited and breaks down walls
+ * the player always spawns at cell arr[0,0] which is (x:0, y:0, z:0)
+ * each cell is 10x10 units area, so its index in the array multiplied be 10 is the location of the center of that cell
+ * i.e. a cell at arr[5,7] is located at x: 50, y: 0, z: 70 in the game world
+ */
 public class BigMazeGenerator : MonoBehaviour
 {
     public static BigMazeGenerator Instance;
 
+    // prefab of the maze cell & it's script
     [SerializeField]
     private MazeCell _mazeCellPrefab;
 
+    // enemy prefab, used to spawn them
     [SerializeField]
     private EnemyController _enemyControllerPrefab;
 
+    // how wided the maze is (x:0 to x:_mazeWidth)
     [SerializeField]
     private int _mazeWidth;
 
+    // how "deep" the maze is (z:0 to z:_mazeDepth)
     [SerializeField]
     private int _mazeDepth;
 
+    // a list of materials used for the walls in the maze (selected randomly for each cell at runtime)
     [SerializeField]
     private List<Material> _materials;
 
+    // the array which holds all the maze cells
     private MazeCell[,] _mazeGrid;
 
-    // index of end cell in maze
+    // an array of size 2, holding the x position and z position of the "end" of the maze (cell to reach to win)
+    // it holds the x and z positions divided by 10 (corresponds to index of final cell in the _mazeGrid)
     private int[] _endCell;
 
-    private int[,] _wallsToBreak;
-
+    // when maze generated, usually first 10-20 cells are just one straight line because of the search algorithm
+    // so when the maze is being searched, a few cells also have a random wall taken down
+    // this arg is a way to specify how many random walls to break
     [SerializeField]
     private int _numWallsToBreak;
+
+    // this 2D array (arr[2, _numWallsToBreak) holds the index of the cells with extra walls to break
+    // the cell is held in the array as
+    // _wallsToBreak[0,0] = random (0 to _mazeDepth - 1) (Z-axis)
+    // _wallsToBreak[1,0] = random (0 to _mazeWidth - 1) (X-axis)
+    private int[,] _wallsToBreak;
+
+    // if it's true, the player can lower (reset) the walls, if false the player can raise the walls 
+    // used alongside other bools to ensure player can only do so when walls aren't moving
     public bool _canResetWalls { get; private set; }
 
+    // true when walls are moving up or down
     private bool _wallsMoving = false;
 
+    // only true when walls are fully up (at normal height)
     public bool _wallsAreUp;
 
-    [SerializeField]
-    private float _timeToGenerateWalls;
+    // was only used when generating walls over time (to visualise maze cells being added)
+    //[SerializeField]
+    //private float _timeToGenerateWalls;
 
+    // the time taken to lower the walls from their max height (used with lerp and delta time)
     [SerializeField]
     private float _timeToLowerWalls;
 
+    // the time taken to raise walls from the bottom (also used with lerp and delta time)
     [SerializeField]
     private float _timeToRaiseWalls;
 
-    private int visitedCellCount = 0;
+    // was previously used to change wall material after having visited half of the maze 
+    //private int visitedCellCount = 0;
 
+    // the Y-axis heigh from which the spawned enemies drop from
     [SerializeField]
     private float _enemyFallHeight;
 
+    // a list which holds each enemy when instantiated (used to increase / decrease all enemy speed)
     private List<EnemyController> _enemyList;
 
+    // a particle effect / trail which is used to show the player the path to the exit
     [SerializeField]
     private GameObject _pathLinePrefab;
 
@@ -65,168 +98,170 @@ public class BigMazeGenerator : MonoBehaviour
     {
         Instance = this;
     }
-    //IEnumerator Start()
+
     void Start()
     {
-        //_pathLine.SetActive(false);
+        // all walls begin at max height
         _wallsAreUp = true;
 
+        // instantiate all the arrays / lists / matrixes
         _endCell = new int[2];
 
+        // get indexes of the end cell [ depth (x), width (z)]
         _endCell = GetEndCell();
 
         _mazeGrid = new MazeCell[_mazeWidth, _mazeDepth];
 
-        _wallsToBreak = new int[2, _numWallsToBreak];//(int)(_mazeWidth + _mazeDepth) / 10];
+        // instantiate 2d array of indexes of walls to break
+        _wallsToBreak = new int[2, _numWallsToBreak];
 
+        // gets said walls [0, n] = depth, [1,n] = width
         _wallsToBreak = GetWallsToBreak();
 
         _enemyList = new List<EnemyController>();
 
+        // instantiate all maze cells and stores them in arr at right index
         for (int i = 0; i < _mazeWidth; i++)
         {
             for (int j = 0; j < _mazeDepth; j++)
             {
+                // i*10 = the x pos of the cell and j*10 = the z pos of the cell
+                // i = grind row index and j = grid column index
                 _mazeGrid[i, j] = Instantiate(_mazeCellPrefab, new Vector3((float)(i*10), 0, (float)(j * 10)), Quaternion.identity);
             }
         }
 
-        // start at first cell
-        //yield return GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
+        // because GenerateMaze calls a recursive function, start at first cell [0,0]
         GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
-        
     }
 
+    /* GetEndCell()
+     * 
+     * because the player spawns at [x:0 z:0], 
+     * the end cell is either on the x wall - [x = _mazeDepth - 1] and [z = random num from 0 to _mazeWidth - 1]
+     * or on the z wall - [x = random num from 0 to _mazeDepth - 1] and [z = _mazeWidth - 1]
+     * this function finds a random cell on one of the two walls and returns it as the end cell
+     */
     private int[] GetEndCell()
     {
-        // 
         int[] endCell = new int[2];
 
-        // 0 if end on right wall (x = _mazeDepth - 1)
-        // 1 if end of front wall (z = _mazeWidth - 1)
+        // decide if end is on x wall (0) or z wall (1)
         int endBorder = Random.Range(0, 2);
 
         if (endBorder == 0)
         {
-            endCell[0] = _mazeWidth - 1;
-            endCell[1] = Random.Range(0, _mazeDepth);
+            endCell[0] = Random.Range(0, _mazeDepth);
+            endCell[1] = _mazeWidth - 1;
         }
         else
         {
-            endCell[0] = Random.Range(0, _mazeWidth);
-            endCell[1] = _mazeDepth - 1;
+            endCell[0] = _mazeDepth - 1;
+            endCell[1] = Random.Range(0, _mazeWidth);
         }
 
-        //Debug.Log("EndCell: " + endCell[0] + ", " + endCell[1]);
         return endCell;
     }
 
+    /* GetWallsToBreak()
+     * finds random cells, stores them in 2d array (number of cells = _numWallsToBreak)
+     * [0, x] = _mazeDepth and [1,z] = _mazeWidth
+     * returns the array to start
+     */
     private int[,] GetWallsToBreak()
     {
-        // 
         int[,] wallsToBreak = new int[2, _numWallsToBreak];
 
-        // 0 if end on right wall (x = _mazeDepth - 1)
-        // 1 if end of front wall (z = _mazeWidth - 1)
         for (int i = 0; i < _numWallsToBreak; i++)
         {
             wallsToBreak[0, i] = Random.Range(1, _mazeDepth-1);
             wallsToBreak[1, i] = Random.Range(1, _mazeWidth - 1);
-
-            //for (int j = 0; j < i; j++)
-            //{
-            //    if (wallsToBreak[0, j] == wallsToBreak[0, i] && wallsToBreak[1, j] == wallsToBreak[1, i])
-
-            //}
         }
 
-        //Debug.Log("EndCell: " + endCell[0] + ", " + endCell[1]);
         return wallsToBreak;
     }
 
-    // generats maze
-    //private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
+    /* GenerateMaze(cell visited before current, the currentCell, index of the end cell [x, z], indexes of all "random" cells with walls to break)
+     * generates maze by marking current cell as visited, then finding a random adjacent UNVISITED cell, then breaking the walls between
+     * repeats until current cell has no unvisited neighbours, then recursively backtracks until ther is an unvisited cell
+     * repeats untill all cells are visited
+     */
     private void GenerateMaze(MazeCell previousCell, MazeCell currentCell, int[] endCell, int[,] wallsToBreak)
     {
-        visitedCellCount++;
+        // check if the current cell is the last cell and this is the first time it's appeared
         if (currentCell == _mazeGrid[endCell[0], endCell[1]] && currentCell.isVisited == false)
         {
-            // is at right of grid
+            // is at right of grid so x = max val
             if (endCell[0] == _mazeWidth - 1)
             {
-                //_mazeGrid[endCell[0], endCell[1]].AddComponent<NavMeshObstacle>();
-                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localPosition = new Vector3(5f, 5f, 0f);
-                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localScale = new Vector3(1f, 10f, 10f);
-                //_mazeGrid[endCell[0], endCell[1]].ClearRightWall();
+                // calls a MazeCell member function to mark the cell as the end and destroy the "end" wall
+                // pass true to the function knows to destroy the right wall
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(true);
                 
             }
             else
             {
-                //_mazeGrid[endCell[0], endCell[1]].AddComponent<NavMeshObstacle>();
-                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localPosition = new Vector3(0f, 5f, 5f);
-                //_mazeGrid[endCell[0], endCell[1]].GetComponent<NavMeshObstacle>().transform.localScale = new Vector3(1f, 10f, 10f);
-                //_mazeGrid[endCell[0], endCell[1]].ClearFrontWall();
+                // if not on the right wall, but be at the top (z = max), pass false so func knows to destroy the top wall
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
             }
 
+            // spawn the first enemy at the end of the maze, infront of the end
             _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, _enemyFallHeight, endCell[1]*10), Quaternion.identity));
-            //Debug.Log("EndCell Cleared: " + endCell[0] + ", " + endCell[1]);
         }
 
-        //if (visitedCellCount <= (_mazeWidth * _mazeDepth / 2))
-        //{
-        //    currentCell.SetCellMaterial(_materials[0], _mazeWidth, _mazeDepth);
-        //}
-        //else
-        //{
-        //    currentCell.SetCellMaterial(_materials[1], _mazeWidth, _mazeDepth);
-        //}
-
+        // choose a random material from the list
         int randomMat = Random.Range(0, _materials.Count());
+        //add that material to all of the cell walls before they are destroyed
         currentCell.SetCellMaterial(_materials[randomMat], _mazeWidth, _mazeDepth);
 
 
-
+        // check if the current cell needs to break random walls (i.e. is in the wallsToBreak array)
         for (int i = 0; i < _numWallsToBreak; i++)
         {
             if (currentCell == _mazeGrid[wallsToBreak[0, i], wallsToBreak[1, i]] && currentCell.isVisited == false)
             {
+                // if it should have random walls broken,
                 MazeCell randomCell;
+                // find neighbor which has walls up
                 randomCell = GetUnvisitedCell(currentCell);
+                // destory the walls with the random neightbor
                 ClearWalls(randomCell, currentCell);
-                Debug.Log("Breaking wall between " + wallsToBreak[0, i] + ", " + wallsToBreak[1, i]);
             }
         }
 
+        // visit the current cell (mark it internally as visited)
         currentCell.Visit();
+        // spawn a random item on it at it's current position
         ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x/10), (int)(currentCell.transform.position.z/10));
         //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemFront((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemBack((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+
+        // call the clear walls function, 
         ClearWalls(previousCell, currentCell);
 
-        // waits before do next
-        //yield return new WaitForSeconds(_timeToGenerateWalls);
-
+        // create temp var to hold the next cell
         MazeCell nextCell;
 
         // if null, backtracks recursively
         do
         {
+            // find unvisited neightbor
             nextCell = GetUnvisitedCell(currentCell);
 
+            // if unvisited neightbor exists
             if (nextCell != null)
             {
-                // use yield return for coroutine
-                //yield return GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
+                // call the function recursively
                 GenerateMaze(currentCell, nextCell, _endCell, wallsToBreak);
             }
         } while (nextCell != null);
+        // exit loop if there was no unvisited neightbor, therby backtracking recursively to prev visited cell
     }
 
+    // returns true or false randomly, used to decide if broken wall will have door instead
     private bool TrueFalse()
     {
         int temp = 0;
@@ -235,6 +270,7 @@ public class BigMazeGenerator : MonoBehaviour
         return temp == 0;
     }
 
+    // returns true 1/3 of the time, and false 2/3 
     private bool TrueFalseFalse()
     {
         int temp = 0;
@@ -248,22 +284,26 @@ public class BigMazeGenerator : MonoBehaviour
     {
         var unvisitedCells = GetUnvisitedCells(currentCell);
 
-        // orders list randomly? (return first or default return first if only 1)
+        // orders list randomly?  (orders list randomly and returns the first one in the list)
         return unvisitedCells.OrderBy(_ => Random.Range(1, 10)).FirstOrDefault();
     }
 
-    // returns list of unvisited cells (next to current cell)
+    /* IEnumerable<MazeCell> GetUnvisitedCells(MazeCell currentCell)
+     * returns list of unvisited cells (next to current cell
+     * uses IEnumerable<MazeCell> and yield return to return said list
+     */
     private IEnumerable<MazeCell> GetUnvisitedCells(MazeCell currentCell)
     {
-        // x pos of curr cell
+        // x pos of curr cell (use int so no wierd rounding)
         int x = (int)currentCell.transform.position.x;
+        // divide by 10 to find the index in _mazeGrid array [x, z]
         x = x / 10;
         // z pos of curr cell
         int z = (int)currentCell.transform.position.z;
+        // same as before
         z = z / 10;
-        // (vals correspond to index of cell in arr)
 
-        // check cell to right is in grid
+        // check cell to right is in grid bounds (i.e. x + 1 < _mazeWidth)
         if (x + 1 < _mazeWidth)
         {
             // if is in grid, get cell 
@@ -277,7 +317,7 @@ public class BigMazeGenerator : MonoBehaviour
             }
         }
 
-        // cells start at 0, so check if not too far left
+        // cells start at 0, so check if not too far left (i.e. x - 1 >= 0)
         if (x - 1 >= 0)
         {
             var cellToLeft = _mazeGrid[x - 1, z];
@@ -288,7 +328,7 @@ public class BigMazeGenerator : MonoBehaviour
             }
         }
 
-        // check cell not too far at front
+        // check cell not too far at front (i.e. z + 1 < _mazeDepth)
         if (z + 1 < _mazeDepth)
         {
             var cellToFront = _mazeGrid[x, z + 1];
@@ -299,7 +339,7 @@ public class BigMazeGenerator : MonoBehaviour
             }
         }
 
-        // check cell not below 0
+        // check cell not below grid (i.e. z - 1 >= 0)
         if (z - 1 >= 0)
         {
             var cellToBack = _mazeGrid[x, z - 1];
@@ -311,11 +351,13 @@ public class BigMazeGenerator : MonoBehaviour
         }
     }
 
-
-    // checks where prev is relative to current and break walls between
+    /* ClearWalls( cell visited before current,  currentCell)
+     * checks where the previous cell is, relative to the current, and uses that to destroy the walls between them
+     * if previous cell is to the left and current cell is to the right: previous cell destroyes right wall and current destroyes left wall
+     */
     private void ClearWalls(MazeCell previousCell, MazeCell currentCell)
     {
-        // is first cell
+        // check that it's not the first cell passed (i.e. there is no previous cell
         if (previousCell == null)
         {
             return;
@@ -374,6 +416,10 @@ public class BigMazeGenerator : MonoBehaviour
         }
     }
 
+    /* ClearAllWalls(float time)
+     * loweres all of the walls so that they are barely visible above the floor
+     * walls must not already be moving 
+     */
     public void ClearAllWalls(float time)
     {
         if (!_wallsMoving)
@@ -381,6 +427,8 @@ public class BigMazeGenerator : MonoBehaviour
             _wallsAreUp = false;
 
             _wallsMoving = true;
+
+            // calls member function of MazeCell to lower all the walls
             for (int i = 0; i < _mazeWidth; i++)
             {
                 for (int j = 0; j < _mazeDepth; j++)
@@ -389,6 +437,7 @@ public class BigMazeGenerator : MonoBehaviour
                 }
             }
 
+            // increases the speed of all the enemies
             for (int i = 0; i < _enemyList.Count(); i++)
             {
                 if (_enemyList[i] != null)
@@ -397,25 +446,31 @@ public class BigMazeGenerator : MonoBehaviour
                 }
             }
 
+            // wait for walls to be lowered before allowing the player to raise them
             StartCoroutine(CanResetWallsWait());
 
+            // wait for a while then raise the walls automatically if the player hasent already done so
             StartCoroutine(WaitBeforeResetWalls(time));
         }
     }
 
+    // waits until the walls are lowered, the calls a function to show the player the best path to the exit
     private IEnumerator CanResetWallsWait()
     {
         yield return new WaitForSeconds(_timeToLowerWalls);
 
+        // once walls are at the bottom, allow player to raise walls 
         FindBestPath();
         _wallsMoving = false;
         _canResetWalls = false;
     }
 
+    // wait for a while then automatically reset the walls
     private IEnumerator WaitBeforeResetWalls(float time)
     {
         yield return new WaitForSeconds(time);
-
+        
+        // check that the player hasen't manually reset the walls
         if (!_canResetWalls)
         {
             Debug.Log("coroutine donw");
@@ -423,20 +478,24 @@ public class BigMazeGenerator : MonoBehaviour
         }
     }
 
+    // if the player reset's the walls, stop the coroutine that would do it automatically and reset them
     public void PlayerResetAll()
     {
+        // check the player can actually reset the walls
         if (!_wallsMoving)
         {
             StopCoroutine("WaitBeforeResetWalls");
             ResetAllWalls();
         }
     }
+
+    // raises all of the walls
     public void ResetAllWalls()
     {
+        // check they aren't moving
         if (!_wallsMoving)
         {
-            //DisableBestPath();
-            Debug.Log("start reset");
+            // go through all cells and call a member function to raise them 
             for (int i = 0; i < _mazeWidth; i++)
             {
                 for (int j = 0; j < _mazeDepth; j++)
@@ -446,20 +505,24 @@ public class BigMazeGenerator : MonoBehaviour
                 }
             }
 
+            // wait until walls are back up before allowing player to lower them again
             StartCoroutine(CanRaiseWalls());
         }
 
     }
 
+    // wait until all the walls are bak at the top, then allow the player to lower them again
     private IEnumerator CanRaiseWalls()
     {
         yield return new WaitForSeconds(_timeToRaiseWalls);
 
         _wallsMoving = false;
         _canResetWalls = true;
+        // because player is frozen when walls begin lowering, unfreeze them when they are done raising
         FindObjectOfType<PlayerController>().UnfreezePlayer();
         _wallsAreUp = true;
 
+        // decrease the speed of all enemies
         for (int i = 0; i < _enemyList.Count(); i++)
         {
             if (_enemyList[i] != null)
@@ -467,24 +530,29 @@ public class BigMazeGenerator : MonoBehaviour
                 _enemyList[i].DecreaseEnemySpeed();
             }
         }
-        //PlayerController.UnfreezePlayer();
     }
 
-    public void Spawn2Enemies()//Transform transform)
+    /*
+     * spawn two enemies each time one is killed at a random position relative to the player
+     * the position is based on main camera (attached to player) and they are spawned in a grid around the player\
+     * at least 2 cells away from player and at most 4 cells
+     */
+    public void Spawn2Enemies()
     {
-        //int playerX = (int)(transform.position.x/10);
+        // get player pos (using indexes in _mazeGrid)
         int playerX = (int)(Camera.main.transform.position.x/10);
-        //int playerZ = (int)(transform.position.z/10);
         int playerZ = (int)(Camera.main.transform.position.z/10);
 
         for (int i = 0; i < 2; i++)
         {
+            // find random grid distance
             int newX = Random.Range(2, 5);
             int newZ = Random.Range(2, 5);
-
+            // add distance to player position
             int xSpawn = playerX + newX;
             int zSpawn = playerZ + newZ;
 
+            // if the new pos is outisde of the maze, subtract instead
             if (xSpawn >= _mazeWidth)
             {
                 xSpawn = playerX - newX;
@@ -493,11 +561,13 @@ public class BigMazeGenerator : MonoBehaviour
             {
                 zSpawn = playerZ - newZ;
             }
-            Debug.Log("New X = " + xSpawn + ", New Z = " + zSpawn);
+            //Debug.Log("New X = " + xSpawn + ", New Z = " + zSpawn);
+            // create the enemy and add to the list
             _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3((xSpawn * 10), _enemyFallHeight, (zSpawn * 10)), Quaternion.identity));
         }
     }
 
+    // when app quit, destroy all enemies in the list (was getting issues with prefabs remaining after quit)
     private void OnApplicationQuit()
     {
         for (int i = _enemyList.Count - 1; i >0 ;i--)
@@ -508,15 +578,20 @@ public class BigMazeGenerator : MonoBehaviour
 
     }
 
+    /*
+     * finds the best path to get from the player position to the end of the maze
+     * calls a recursive function with the initial location, and passes refrence variables to track it
+     * then displayes the best path using a coroutine (to show the icon moving from start to end)
+     * uses a "cost" to make sure the path chosen is the shortest
+     */
     private void FindBestPath()
     {
         Debug.Log("Find best path start");
-        //int[,] bestPathIndexes = new int[2, (_mazeDepth >= _mazeWidth ?  _mazeDepth : _mazeWidth)];
-        //int[,] bestPath = new int[_mazeWidth, _mazeDepth];
+        
+        // parrallel array to the _mazeGrid, but bools to check if that node has been used in the main path 
         bool[,] nodeVisited = new bool[_mazeWidth, _mazeDepth];
         List<MazeCell> bestPath = new List<MazeCell>();
 
-        //bool pathFound = false;
         Transform playerPosition = Camera.main.transform;
         int playerX = (int)(playerPosition.transform.position.x/10);
         int playerZ = (int)(playerPosition.transform.position.z / 10);
@@ -528,86 +603,41 @@ public class BigMazeGenerator : MonoBehaviour
             FindBestPathRec(nodeVisited, playerX, playerZ, ref minCost, ref bestPath);
 
             StartCoroutine(DisplayBestPath(bestPath));
-
-            //for (int i = bestPath.Count() - 1; i >= 0; i--)
-            //{
-                
-            //    //DisplayBestPath(bestPath[i]);
-            //}
         }
 
 
     }
-
-    private IEnumerator DisplayBestPath(List<MazeCell> bestPath)
-    {
-        var _pathLine = Instantiate(_pathLinePrefab, bestPath[bestPath.Count() - 1].transform.position + new Vector3(0,5,0), Quaternion.identity);
-        //_pathLine.SetActive(true);
-        //_pathLine.transform.position = bestPath[bestPath.Count() - 1].transform.position;
-        for (int i = bestPath.Count() - 1; i >= 0; i--)
-        {
-            yield return new WaitForSeconds(0.1f);
-            //_pathLine.transform.position = bestPath[i].transform.position;
-            if (i + 1 < bestPath.Count())
-            {
-                //if (bestPath[i+1].transform.position.x < bestPath[i].transform.position.x)
-                //{
-                //    _pathLine.transform.rotation = Quaternion.
-                //}
-                //targetPosition = targetTransform.position;
-                //targetPosition.y = transform.position.y;
-                _pathLine.transform.LookAt(bestPath[i].transform.position);
-                float time = 0f;
-                float t = 0;
-                //_endPosition = _startPosition + endPosition;
-
-                while (t < 1)
-                {
-                    yield return null;
-                    time += Time.deltaTime;
-                    t = time / 0.2f;
-
-                    _pathLine.transform.localPosition = Vector3.Lerp(bestPath[i+1].transform.position + new Vector3(0, 5, 0), bestPath[i].transform.position + new Vector3(0, 5, 0), t);
-                    //_pathLine.transform.rotation = Vector3.Lerp(bestPath[i+1].transform.rotation, bestPath[i].transform.rotation, t);
-                }
-                    bestPath[i].EnablePathToEnd();
-            }
-        }
-
-        Destroy(_pathLine);
-
-        for (int i = 0; i < bestPath.Count(); i++)
-        {
-            bestPath[i].DisablePathToEnd();
-        }
-
-    }
-
+    /* FindBestPathRec(bool matrix of nodes visited, x index of current cell, z index of curr cell, the cost of the current path, array of MazeCells - from current to end following best path)
+     * 
+     * 
+     */
     private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost, ref List<MazeCell> bestPath)
     {
-        Debug.Log("Find best path rec");
-        //int[,] bestPathIndexes = new int[_mazeWidth, _mazeDepth];
+        // set that the best path isn't found
         bool result = false;
+        // increment cost
         cost++;
 
+        // if the current cell is outside of the maze bounds, can't be best path
         if (x >= _mazeWidth || z >= _mazeDepth || x < 0 || z < 0)
         {
             result = false;
         }
-        else if (_mazeGrid[x,z] == _mazeGrid[_endCell[0], _endCell[1]])
+        // if the current cell is equal to the end cell, a path has been found (but might not be chosen depending on the cost)
+        else if (_mazeGrid[x, z] == _mazeGrid[_endCell[0], _endCell[1]])
         {
             result = true;
         }
         else
         {
+            // if the current cell hasne't already been visited
             if (!nodeVisted[x, z])
             {
-                Debug.Log("Visiting x: " + x + ",z: " + z);
-                nodeVisted[x,z] = true;
+                // visit it by marking the parrallel array of bool as true (at the same index as the current cell in _mazeGrid)
+                nodeVisted[x, z] = true;
 
-                //bool tempResult = false;
-
-                // get cost of path to compare later, use bool to see if acc lead to exit
+                // get relative cost of each other path (i.e. find cost of going to end using current cell as start)
+                // also use a bool to check if that path acc lead to the end
                 int leftCost = 0;
                 bool leftTrue = false;
                 int rightCost = 0;
@@ -617,8 +647,11 @@ public class BigMazeGenerator : MonoBehaviour
                 int backCost = 0;
                 bool backTrue = false;
 
+                // default this to 3 (will be used to select which path is best)
+                // 0: left, 1: right, 2: front, 3: back
                 int trueDirection = 3;
 
+                // check functions return true if the cell in that direction is accessible (i.e. no wall blocking) 
                 if (CheckLeft(x, z))
                 {
                     leftTrue = FindBestPathRec(nodeVisted, x - 1, z, ref leftCost, ref bestPath);
@@ -631,10 +664,10 @@ public class BigMazeGenerator : MonoBehaviour
                 }
                 if (CheckFront(x, z))
                 {
-                    frontTrue = FindBestPathRec(nodeVisted, x, z+1, ref frontCost, ref bestPath);
+                    frontTrue = FindBestPathRec(nodeVisted, x, z + 1, ref frontCost, ref bestPath);
                     if (frontTrue) { result = true; }
                 }
-                if(CheckBack(x, z))
+                if (CheckBack(x, z))
                 {
                     backTrue = FindBestPathRec(nodeVisted, x, z - 1, ref backCost, ref bestPath);
                     if (backTrue) { result = true; }
@@ -642,33 +675,10 @@ public class BigMazeGenerator : MonoBehaviour
 
                 if (result)
                 {
+                    // if one of the paths led to the end, add the current cell to the bestPath List
                     bestPath.Add(_mazeGrid[x, z]);
-                    //_mazeGrid[x, z].EnablePathToEnd();
-                    //StartCoroutine(WaitThenShowPath(x, z));
 
-                    //if ((leftTrue && !rightTrue && !frontTrue && !backTrue))
-                    //{
-                    //    cost += leftCost;
-                    //    _mazeGrid[x-1, z].EnablePathToEnd();
-                    //}
-                    //if (!leftTrue && rightTrue && !frontTrue && !backTrue)
-                    //{
-                    //    cost += rightCost;
-                    //    _mazeGrid[x +1, z].EnablePathToEnd();
-                    //}
-                    //if (!leftTrue && !rightTrue && frontTrue && !backTrue)
-                    //{
-                    //    cost += frontCost;
-                    //    _mazeGrid[x , z+1].EnablePathToEnd();
-                    //}
-                    //if (!leftTrue && !rightTrue && !frontTrue && backTrue)
-                    //{
-                    //    cost += backCost;
-                    //    _mazeGrid[x, z-1].EnablePathToEnd();
-                    //}
-
-                    // left = 0, right = 1, front = 2, back = 3
-
+                    // if left lead to the exit, compare it to the cost of all the other paths which also  lead to the exit
                     if (leftTrue)
                     {
                         if (rightTrue && leftCost < rightCost)
@@ -696,6 +706,7 @@ public class BigMazeGenerator : MonoBehaviour
                             trueDirection = 3;
                         }
                     }
+                    // re do checks if right is also true, but don't compare it to the left now (already checked)
                     if (rightTrue)
                     {
                         if (frontTrue && rightCost < frontCost)
@@ -715,6 +726,7 @@ public class BigMazeGenerator : MonoBehaviour
                             trueDirection = 3;
                         }
                     }
+                    // repeat but for front (no check left or right) - (if back was best then it wouldn't have changed from default 3)
                     if (frontTrue)
                     {
                         if (backTrue && frontCost < backCost)
@@ -727,59 +739,77 @@ public class BigMazeGenerator : MonoBehaviour
                         }
                     }
 
+                    // increase the refrence cost by the best path
                     if (trueDirection == 0)
                     {
                         cost += leftCost;
-                        //StartCoroutine(WaitThenShowPath(x - 1, z));
-                        //_mazeGrid[x-1, z].EnablePathToEnd();
                     }
                     else if (trueDirection == 1)
                     {
                         cost += rightCost;
-                        //StartCoroutine(WaitThenShowPath(x + 1, z));
-                        //_mazeGrid[x+1, z].EnablePathToEnd();
                     }
                     else if (trueDirection == 2)
                     {
                         cost += frontCost;
-                        //StartCoroutine(WaitThenShowPath(x, z+1));
-                        //_mazeGrid[x, z+1].EnablePathToEnd();
                     }
                     else if (trueDirection == 3)
                     {
                         cost += backCost;
-                        //StartCoroutine(WaitThenShowPath(x, z-1));
-                        //_mazeGrid[x, z-1].EnablePathToEnd();
                     }
-
-                    //StartCoroutine(WaitThenShowPath(x, z));
-                    //_mazeGrid[x, z].EnablePathToEnd();
-
-                    //if (leftCost > rightCost && leftCost > backCost && leftCost > frontCost)
-                    //{
-                    //    cost += leftCost;
-                    //    _mazeGrid[x, z].EnablePathToEnd();
-                    //}
                 }
+            }
+        }
+        // return's true only if the path has the lowest cost and it lead to the end
+        return result;
 
-                //if (result)
-                //{
-                //    _mazeGrid[x, z].EnablePathToEnd();
-                //}
-                //if (FindBestPathRec(nodeVisted, x + 1, z) || FindBestPathRec(nodeVisted, x - 1, z) || FindBestPathRec(nodeVisted, x, z + 1) || FindBestPathRec(nodeVisted, x , z-1))
-                //{
-                //    Debug.Log("Enable Node x: " + x + ", z: " + z);
-                //    _mazeGrid[x, z].EnablePathToEnd();
-                //    result = true;
-                //}
+    }
 
-                //FindBestPathRec(nodeVisted)
+    /*
+     * displays a particle orb thing that moves from the players location to the end of the maze (leaving trail behind)
+     * 
+     */
+    private IEnumerator DisplayBestPath(List<MazeCell> bestPath)
+    {
+        // create the prefab
+        var _pathLine = Instantiate(_pathLinePrefab, bestPath[bestPath.Count() - 1].transform.position + new Vector3(0,5,0), Quaternion.identity);
+
+        for (int i = bestPath.Count() - 1; i >= 0; i--)
+        {
+            // wait for .1 seconds then display next
+            yield return new WaitForSeconds(0.1f);
+            // check that it's still in the array
+            if (i + 1 < bestPath.Count())
+            {
+                // make the prefab look at the next cell in the path
+                _pathLine.transform.LookAt(bestPath[i].transform.position);
+                float time = 0f;
+                float t = 0;
+                // move the prefab from it's current location to the next cell in a linear manner (using lerp)
+                while (t < 1)
+                {
+                    yield return null;
+                    time += Time.deltaTime;
+                    t = time / 0.2f;
+
+                    // pass the prev cell as A, the next cell loc as B and the time percentage
+                    _pathLine.transform.localPosition = Vector3.Lerp(bestPath[i+1].transform.position + new Vector3(0, 5, 0), bestPath[i].transform.position + new Vector3(0, 5, 0), t);
+                }
+                // add icon over cell 
+                bestPath[i].EnablePathToEnd();
             }
         }
 
-        return result;
-        
+        // when done destroy path prefab and disbale all the icons over the path cells
+        Destroy(_pathLine);
+
+        for (int i = 0; i < bestPath.Count(); i++)
+        {
+            bestPath[i].DisablePathToEnd();
+        }
+
     }
+
+    
 
     private bool CheckLeft(int x, int z)
     {
