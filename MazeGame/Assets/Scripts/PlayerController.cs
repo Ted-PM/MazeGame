@@ -20,6 +20,14 @@ public class PlayerController : MonoBehaviour
 
     bool canJump;
 
+
+    [SerializeField]
+    private float _sprintMultiplier;
+    public bool isSprinting = false;
+    [SerializeField]
+    private SprintBarController _sprintBar;
+    [SerializeField]
+
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider>();
@@ -28,38 +36,67 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         canJump = true;
+        isSprinting = false;
         //rb = GetComponent<Rigidbody>();
     }
     void Update()
     {
         lookAtMouse();
-        Mover();
+
+        if (!rb.isKinematic)
+        {
+            Mover();
+        }
+        else
+        {
+            StopSprinting();
+        }
+        WallController();
+        //Debug.Log(sprintRatio);
     }
 
     void Mover()
     {
-        if (Input.GetKey("w") && !rb.isKinematic)
+        if (Input.GetKey("w"))
         {
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
         }
-        if (Input.GetKey("s") && !rb.isKinematic)
+        if (Input.GetKey("s"))
         {
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
         }
-        if (Input.GetKey("a") && !rb.isKinematic)
+        if (Input.GetKey("a"))
         {
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
         }
-        if (Input.GetKey("d") && !rb.isKinematic)
+        if (Input.GetKey("d"))
         {
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         }
-        if (Input.GetKey(KeyCode.Space) && canJump && !rb.isKinematic)
+        if (Input.GetKey(KeyCode.Space) && canJump)
         {
             canJump = false;
             rb.AddForce(transform.up * jumpForce);
         }
 
+
+        if (Input.GetKeyDown("left shift") && _sprintBar.canSprint && !isSprinting)
+        {
+            StartSprinting();
+        }
+        else if ((!Input.GetKey("left shift") && isSprinting) || !_sprintBar.canSprint)
+        {
+            StopSprinting();
+        }
+        
+        //else
+        //{
+        //    StartCoroutine(SprintCooldown());
+        //}
+    }
+
+    private void WallController()
+    {
         if (Input.GetKeyDown("v"))
         {
             //if (MazeGenerator.Instance._canResetWalls == true)
@@ -79,6 +116,53 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    private void StartSprinting()
+    {
+        //Debug.Log("current speed: " + movementSpeed);
+        if (!isSprinting)
+        {
+            movementSpeed = movementSpeed * _sprintMultiplier;
+            isSprinting = true;
+            if (_sprintBar.canSprint)
+            {
+                StartCoroutine(_sprintBar.StartSprinting());
+            }
+            Debug.Log("start coroutine ");
+        }
+        //else if (canSprint)
+        //{
+        //    _sprintTime += Time.deltaTime;
+        //    sprintRatio = _sprintTime / _maxSprintTime;
+        //    if (sprintRatio >= 1)
+        //    {
+        //        canSprint = false;
+        //    }
+        //}
+    }
+
+    private void StopSprinting()
+    {
+        //Debug.Log("current stop speed: " + movementSpeed);
+        if (isSprinting)
+        {
+            movementSpeed = movementSpeed / _sprintMultiplier;
+            isSprinting = false;
+            if (_sprintBar.canSprint) 
+            { 
+                StartCoroutine(_sprintBar.StopSprinting());
+            }
+            Debug.Log("start stop corouting " );
+        }   
+    }
+
+    //private IEnumerator SprintCooldown()
+    //{
+    //    yield return new WaitForSeconds(_sprintCooldownTime);
+
+    //    canSprint = true;
+    //    StopSprinting();
+    //}
 
     public void UnfreezePlayer()
     {
