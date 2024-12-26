@@ -34,8 +34,9 @@ public class PlayerController : MonoBehaviour
     public bool isSprinting = false;
     [SerializeField]
     private SprintBarController _sprintBar;
-    [SerializeField]
-
+    //[SerializeField]
+    //[SerializeField]
+    //private AudioSource _playerKilled;
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider>();
@@ -78,6 +79,7 @@ public class PlayerController : MonoBehaviour
             if (!_stepSoundPlaying)
             {
                 _isWalking = true;
+                StopCoroutine(WalkSound());
                 StartCoroutine(WalkSound());
             }
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
@@ -87,6 +89,7 @@ public class PlayerController : MonoBehaviour
             if (!_stepSoundPlaying)
             {
                 _isWalking = true;
+                StopCoroutine(WalkSound());
                 StartCoroutine(WalkSound());
             }
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
@@ -96,6 +99,7 @@ public class PlayerController : MonoBehaviour
             if (!_stepSoundPlaying)
             {
                 _isWalking = true;
+                StopCoroutine(WalkSound());
                 StartCoroutine(WalkSound());
             }
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
@@ -105,6 +109,7 @@ public class PlayerController : MonoBehaviour
             if (!_stepSoundPlaying)
             {
                 _isWalking = true;
+                StopCoroutine(WalkSound());
                 StartCoroutine(WalkSound());
             }
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
@@ -170,7 +175,10 @@ public class PlayerController : MonoBehaviour
             }
             yield return new WaitForSeconds(.3f);
             _step.Stop();
-            StartCoroutine(WalkSound());
+            if (!_step.isPlaying)
+            {
+                StartCoroutine(WalkSound());
+            }
         }
         else if (canJump && _isWalking)
         {
@@ -273,6 +281,7 @@ public class PlayerController : MonoBehaviour
         }
         if (collision.gameObject.tag == "Enemy")
         {
+
             GetComponentInChildren<CapsuleCollider>().enabled = false;
             GameManager.Instance.PlayerDead();
         }
