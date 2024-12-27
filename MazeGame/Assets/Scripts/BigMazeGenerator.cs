@@ -97,6 +97,9 @@ public class BigMazeGenerator : MonoBehaviour
     [SerializeField]
     private AudioSource _wallsMovingSound;
 
+    [SerializeField]
+    private GameObject _loadingScreen;
+
     private void Awake()
     {
         Instance = this;
@@ -104,6 +107,9 @@ public class BigMazeGenerator : MonoBehaviour
 
     void Start()
     {
+        //Camera.main.GetComponent<AudioListener>().volume = 0;
+        AudioListener.volume = 0;
+        FindObjectOfType<PlayerController>().FreezePlayer();
         // all walls begin at max height
         _wallsAreUp = true;
 
@@ -137,6 +143,7 @@ public class BigMazeGenerator : MonoBehaviour
         // because GenerateMaze calls a recursive function, start at first cell [0,0]
         GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
+        StartCoroutine(WaitThenStartGame());
     }
 
     /* GetEndCell()
@@ -165,6 +172,19 @@ public class BigMazeGenerator : MonoBehaviour
         }
 
         return endCell;
+    }
+
+    private void StartGame()
+    {
+        AudioListener.volume = 1;
+        _loadingScreen.SetActive(false);
+        FindObjectOfType<PlayerController>().UnfreezePlayer();
+    }
+
+    private IEnumerator WaitThenStartGame()
+    {
+        yield return new WaitForSeconds(3);
+        StartGame();
     }
 
     /* GetWallsToBreak()
@@ -602,9 +622,9 @@ public class BigMazeGenerator : MonoBehaviour
         List<MazeCell> bestPath = new List<MazeCell>();
 
         Transform playerPosition = Camera.main.transform;
-        int playerX = (int)(playerPosition.transform.position.x / 10);
-        int playerZ = (int)(playerPosition.transform.position.z / 10);
-
+        int playerX = (int)((playerPosition.transform.position.x + 5) / 10);
+        int playerZ = (int)((playerPosition.transform.position.z+5) / 10);
+        Debug.Log("PlayerX: " + playerX + ", PlayerZ: " + playerZ + "accX: " + (int)(playerPosition.transform.position.x) + ", accZ: " + (int)(playerPosition.transform.position.z));
         int minCost = 0;
 
         if (_mazeGrid[playerX, playerZ] != _mazeGrid[_endCell[0], _endCell[1]])
@@ -636,7 +656,10 @@ public class BigMazeGenerator : MonoBehaviour
         else if (_mazeGrid[x, z] == _mazeGrid[_endCell[0], _endCell[1]])
         {
             result = true;
-        }
+            nodeVisted[x, z] = true;
+            bestPath.Add(_mazeGrid[x, z]);
+
+        }   
         else
         {
             // if the current cell hasne't already been visited
@@ -789,6 +812,7 @@ public class BigMazeGenerator : MonoBehaviour
             // check that it's still in the array
             if (i + 1 < bestPath.Count())
             {
+
                 // make the prefab look at the next cell in the path
                 _pathLine.transform.LookAt(bestPath[i].transform.position);
                 float time = 0f;
@@ -804,7 +828,12 @@ public class BigMazeGenerator : MonoBehaviour
                     _pathLine.transform.localPosition = Vector3.Lerp(bestPath[i+1].transform.position + new Vector3(0, 5, 0), bestPath[i].transform.position + new Vector3(0, 5, 0), t);
                 }
                 // add icon over cell 
+                //Debug.Log("CurrentCell (X,Z): " + bestPath[i].transform.position.x + ", " + bestPath[i].transform.position.z);
                 bestPath[i].EnablePathToEnd();
+            }
+            if (bestPath[i].isFrontEnd || bestPath[i].isRightEnd)
+            {
+                break;
             }
         }
 
@@ -828,7 +857,7 @@ public class BigMazeGenerator : MonoBehaviour
         if (x - 1 >= 0 && _mazeGrid[x,z].GetLeftWallStatus())
         {
             result = true;
-            Debug.Log("left true, x: " + (x-1) + ",z " + z);
+            //Debug.Log("left true, x: " + (x-1) + ",z " + z);
         }
 
         return result;
@@ -842,7 +871,7 @@ public class BigMazeGenerator : MonoBehaviour
         if (x + 1 < _mazeWidth && _mazeGrid[x, z].GetRightWallStatus())
         {
             result = true;
-            Debug.Log("Right true, x: " + (x + 1) + ",z " + z);
+            //Debug.Log("Right true, x: " + (x + 1) + ",z " + z);
         }
 
         return result;
@@ -855,7 +884,7 @@ public class BigMazeGenerator : MonoBehaviour
         //right
         if (z + 1 < _mazeDepth && _mazeGrid[x, z].GetFrontWallStatus())
         {
-            Debug.Log("front true, x: " + (x) + ",z " + (z+1));
+            //Debug.Log("front true, x: " + (x) + ",z " + (z+1));
             result = true;
         }
 
@@ -869,7 +898,7 @@ public class BigMazeGenerator : MonoBehaviour
         if (z - 1 >= 0 && _mazeGrid[x, z].GetBackWallStatus())
         {
             result = true;
-            Debug.Log("back true, x: " + (x) + ",z " + (z-1));
+            //Debug.Log("back true, x: " + (x) + ",z " + (z-1));
         }
 
         return result;
@@ -881,9 +910,18 @@ public class BigMazeGenerator : MonoBehaviour
         {
             for (int j = 0; j < _mazeDepth; j++)
             {
-                Debug.Log("Disable Node x: " + i + ", z: " + j);
+                //Debug.Log("Disable Node x: " + i + ", z: " + j);
                 _mazeGrid[i,j].DisablePathToEnd();
             }
         }
+    }
+
+    public int GetMazeWidth()
+    {
+        return _mazeWidth;
+    }
+    public int GetMazeDepth()
+    {
+        return _mazeDepth;
     }
 }

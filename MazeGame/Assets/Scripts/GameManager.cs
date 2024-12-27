@@ -43,6 +43,11 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainGame");
     }
 
+    //public void BeginGame()
+    //{
+
+    //}
+
     public void PlayerDead()
     {
         Cursor.visible = true;

@@ -76,53 +76,53 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey("w"))
         {
             //StartCoroutine(WalkingSound());
-            if (!_stepSoundPlaying)
-            {
-                _isWalking = true;
-                StopCoroutine(WalkSound());
-                StartCoroutine(WalkSound());
-            }
+            //if (!_stepSoundPlaying)
+            //{
+            //    _isWalking = true;
+            //    StopCoroutine(WalkSound());
+            //    StartCoroutine(WalkSound());
+            //}
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
         }
         if (Input.GetKey("s"))
         {
-            if (!_stepSoundPlaying)
-            {
-                _isWalking = true;
-                StopCoroutine(WalkSound());
-                StartCoroutine(WalkSound());
-            }
+            //if (!_stepSoundPlaying)
+            //{
+            //    _isWalking = true;
+            //    StopCoroutine(WalkSound());
+            //    StartCoroutine(WalkSound());
+            //}
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
         }
         if (Input.GetKey("a"))
         {
-            if (!_stepSoundPlaying)
-            {
-                _isWalking = true;
-                StopCoroutine(WalkSound());
-                StartCoroutine(WalkSound());
-            }
+            //if (!_stepSoundPlaying)
+            //{
+            //    _isWalking = true;
+            //    StopCoroutine(WalkSound());
+            //    StartCoroutine(WalkSound());
+            //}
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
         }
         if (Input.GetKey("d"))
         {
-            if (!_stepSoundPlaying)
-            {
-                _isWalking = true;
-                StopCoroutine(WalkSound());
-                StartCoroutine(WalkSound());
-            }
+            //if (!_stepSoundPlaying)
+            //{
+            //    _isWalking = true;
+            //    StopCoroutine(WalkSound());
+            //    StartCoroutine(WalkSound());
+            //}
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         }
-        if (!Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
-        {
-            if (_stepSoundPlaying)
-            {
-                StopCoroutine(WalkSound());
-                _stepSoundPlaying = false;
-                _isWalking = false;
-            }
-        }
+        //if (!Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
+        //{
+        //    if (_stepSoundPlaying)
+        //    {
+        //        StopCoroutine(WalkSound());
+        //        _stepSoundPlaying = false;
+        //        _isWalking = false;
+        //    }
+        //}
 
         if (Input.GetKey(KeyCode.Space) && canJump)
         {
@@ -139,7 +139,19 @@ public class PlayerController : MonoBehaviour
         {
             StopSprinting();
         }
+
+        StartCoroutine(PlayerIsMoving());
         
+        if (_isWalking && !_stepSoundPlaying)
+        {
+            //StopCoroutine(WalkSound());
+            StartCoroutine(WalkSound());
+        }
+        else if (!_isWalking) 
+        {
+            StopCoroutine(WalkSound());
+            //_stepSoundPlaying = false;
+        }
         //else
         //{
         //    StartCoroutine(SprintCooldown());
@@ -164,6 +176,22 @@ public class PlayerController : MonoBehaviour
     //    //}
     //}
 
+    private IEnumerator PlayerIsMoving()
+    {
+        Vector3 oldPos = transform.position;
+        yield return null;
+        Vector3 newPos = transform.position;
+        if ((int)oldPos.x != (int)newPos.x || (int)oldPos.z != (int)newPos.z)
+        {
+            _isWalking = true;
+        }
+        else
+        {
+            _isWalking =  false;
+            StopCoroutine(WalkSound());
+        }
+    }
+
     private IEnumerator WalkSound()
     {
         if (canJump && _isWalking && isSprinting)
@@ -175,18 +203,26 @@ public class PlayerController : MonoBehaviour
             }
             yield return new WaitForSeconds(.3f);
             _step.Stop();
-            if (!_step.isPlaying)
-            {
-                StartCoroutine(WalkSound());
-            }
+            _stepSoundPlaying = false;
+            //if (!_step.isPlaying)
+            //{
+            //    StartCoroutine(WalkSound());
+            //}
         }
         else if (canJump && _isWalking)
         {
             _stepSoundPlaying = true;
-            _step.Play();
+            if (!_step.isPlaying)
+            {
+                _step.Play();
+            }
             yield return new WaitForSeconds(.7f);
             _step.Stop();
-            StartCoroutine(WalkSound());
+            _stepSoundPlaying = false;
+            //if (!_step.isPlaying)
+            //{
+            //    StartCoroutine(WalkSound());
+            //}
         }
         //else
         //{
@@ -228,7 +264,7 @@ public class PlayerController : MonoBehaviour
             {
                 StartCoroutine(_sprintBar.StartSprinting());
             }
-            Debug.Log("start coroutine ");
+            //Debug.Log("start coroutine ");
         }
         //else if (canSprint)
         //{
@@ -252,7 +288,7 @@ public class PlayerController : MonoBehaviour
             { 
                 StartCoroutine(_sprintBar.StopSprinting());
             }
-            Debug.Log("start stop corouting " );
+            //Debug.Log("start stop corouting " );
         }   
     }
 
@@ -269,6 +305,14 @@ public class PlayerController : MonoBehaviour
         //rb.constraints = RigidbodyConstraints.None;
         //rb.constraints = RigidbodyConstraints.FreezeRotation;
         rb.isKinematic = false;
+
+    }
+
+    public void FreezePlayer()
+    {
+        //rb.constraints = RigidbodyConstraints.None;
+        //rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.isKinematic = true;
 
     }
 

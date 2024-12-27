@@ -19,6 +19,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     private AudioSource _growlSound;
 
+    private bool _isRoaming;
+    private Vector3 _destination;
+
     //Renderer m_Renderer;
 
     //public GameObject _leftEye;
@@ -44,7 +47,7 @@ public class EnemyController : MonoBehaviour
         _enemyCollider = GetComponent<CapsuleCollider>();
         //m_Renderer = GetComponent<Renderer>();
         beenSeen = false;
-
+        _isRoaming = false;
         landed = false;
         GetComponent<NavMeshAgent>().enabled = false;
         //GetComponent<Renderer>().enabled = false;
@@ -67,7 +70,27 @@ public class EnemyController : MonoBehaviour
     {
         if (landed)
         {
-            ChasePlayer();
+            float playerDistanceX = transform.position.x - target.position.x;
+            float playerDistanceZ = transform.position.z - target.position.z;
+
+            if ((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)
+            {
+                Debug.Log("chasing player");
+                _isRoaming = false ;
+                ChasePlayer();
+            }
+            else if (!_isRoaming)
+            {
+                _destination = FindRandomDestination();
+                Debug.Log("Find new destination: x = " + _destination.x + ", z = " + _destination.z);
+                EnemyRoam(_destination);
+            }
+            else
+            {
+                EnemyRoam(_destination);
+            }
+            //if ((transform.position.x - target.position.x) <= 10 && (transform.position.z - target.position.z) <= 10)
+            //if ((transform.position.x + -) )
 
             bool isAnyoneLookingAtMe = IsAnyoneLookingAtMe();
             if (isAnyoneLookingAtMe && !beenSeen && BigMazeGenerator.Instance._wallsAreUp)
@@ -125,7 +148,7 @@ public class EnemyController : MonoBehaviour
 
     private IEnumerator WaitForNavMesh()
     {
-        yield return null;
+        yield return new WaitForSeconds(2f);
         GetComponent<NavMeshAgent>().enabled = true;
         GetComponent<Renderer>().enabled = true;
         agent = GetComponent<NavMeshAgent>();
@@ -149,6 +172,44 @@ public class EnemyController : MonoBehaviour
     void ChasePlayer()
     {
         agent.destination = target.position;
+    }
+
+    void EnemyRoam(Vector3 destination)
+    {
+        float playerDistanceX = transform.position.x - destination.x;
+        float playerDistanceZ = transform.position.z - destination.z;
+
+        if (playerDistanceX <= 10 && playerDistanceX >= -10 && playerDistanceZ <= 10 && playerDistanceZ >= -10)
+        {
+            Debug.Log("arrived at destination: x = " + destination.x + ", z = " + destination.z);
+            Debug.Log("moster currently at: x = " + transform.position.x + ", z = " + transform.position.z);
+            _isRoaming = false;
+        }
+        else
+        {
+            agent.destination = destination;
+        }
+            //Vector3 destination = FindRandomDestination();
+    }
+
+    Vector3 FindRandomDestination()
+    {
+        _isRoaming = true;
+        Vector3 destination;
+        int width = BigMazeGenerator.Instance.GetMazeWidth();
+        int depth = BigMazeGenerator.Instance.GetMazeDepth();
+
+        int destinationX = Random.Range(-2, 3);
+        while (destinationX == 0 || (destinationX + (int)(transform.position.x + 5)/10) >= width|| (destinationX + (int)(transform.position.x + 5) / 10) < 0) 
+        { destinationX = Random.Range(-2, 3); }
+
+        int destinationZ = Random.Range(-2, 3);
+        while (destinationZ == 0 || (destinationZ + (int)(transform.position.z + 5) / 10) >= depth || (destinationZ + (int)(transform.position.z + 5) / 10) < 0) 
+        { destinationZ = Random.Range(-2, 3); }
+
+        destination = new Vector3((destinationX + (int)(transform.position.x + 5) / 10) * 10, 0, (destinationZ + (transform.position.z + 5) / 10) * 10);
+
+        return destination;
     }
 
     //void OnBecameVisible()

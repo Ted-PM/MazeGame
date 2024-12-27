@@ -39,7 +39,7 @@ public class SprintBarController : MonoBehaviour
         _sprintBar.transform.localScale = new Vector3(1 * StartCompletness, 1, 1);
         while (t < 1 && _isSprinting)
         {
-            Debug.Log("ratio: " + t);
+            //Debug.Log("ratio: " + t);
             yield return null;
             time += Time.deltaTime;
             t = time / timeToComplete;
