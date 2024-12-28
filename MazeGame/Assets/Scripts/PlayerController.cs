@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField]
     private SprintBarController _resetWallsBar;
-    private bool _canInteractWithWalls;
 
     //[SerializeField]
     private Camera _playerCamera;
@@ -55,7 +54,6 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
-        _canInteractWithWalls = true;
         _heartBeat.Play();
         canJump = true;
         isSprinting = false;
@@ -186,7 +184,7 @@ public class PlayerController : MonoBehaviour
 
     public void ShakeCamera(float shake)
     {
-        Debug.Log("Start Shake cam");
+        //Debug.Log("Start Shake cam");
         StopCoroutine("PlayerWalkingAnim");
         _playerCamera.GetComponent<Animator>().enabled = false;
         StartCoroutine(_ShakeCamera(shake));
@@ -200,7 +198,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator _ShakeCamera(float shake)
     {
         yield return null;
-        Debug.Log("shaking, Shake = " + shake);
+        //Debug.Log("shaking, Shake = " + shake);
 
         if (shake > 0)
         {

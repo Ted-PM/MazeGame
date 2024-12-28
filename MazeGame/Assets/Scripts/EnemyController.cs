@@ -75,7 +75,7 @@ public class EnemyController : MonoBehaviour
 
             if ((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)
             {
-                Debug.Log("chasing player");
+                //Debug.Log("chasing player");
                 _isRoaming = false ;
                 ChasePlayer();
             }
@@ -233,7 +233,7 @@ public class EnemyController : MonoBehaviour
     void LookAt()
     {
         transform.LookAt(Camera.main.transform);
-        transform.LookAt(Camera.main.transform);
+        //transform.LookAt(Camera.main.transform);
     }
 
     public void TakeDamage(float damageToTake)        // public for projectile script 
