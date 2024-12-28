@@ -35,6 +35,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private SprintBarController _sprintBar;
 
+    [SerializeField]
+    private SprintBarController _resetWallsBar;
+    private bool _canInteractWithWalls;
+
     //[SerializeField]
     private Camera _playerCamera;
 
@@ -51,6 +55,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        _canInteractWithWalls = true;
         _heartBeat.Play();
         canJump = true;
         isSprinting = false;
@@ -304,12 +309,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown("v"))
         {
             //if (MazeGenerator.Instance._canResetWalls == true)
-            if (BigMazeGenerator.Instance._canResetWalls == true)
+            if (BigMazeGenerator.Instance._canResetWalls == true && _resetWallsBar.barPercentComplete >= 0.95)
             {
                 rb.isKinematic = true;
                 //rb.constraints = RigidbodyConstraints.FreezePosition;
                 //rb.constraints = RigidbodyConstraints.FreezeRotation;
                 //MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
+                StartCoroutine(_resetWallsBar.StartSprinting());
+                //_canInteractWithWalls = false;
                 BigMazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
             }
             //else if (MazeGenerator.Instance._canResetWalls == false)

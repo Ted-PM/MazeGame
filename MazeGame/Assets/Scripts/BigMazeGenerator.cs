@@ -834,7 +834,7 @@ public class BigMazeGenerator : MonoBehaviour
                 //Debug.Log("CurrentCell (X,Z): " + bestPath[i].transform.position.x + ", " + bestPath[i].transform.position.z);
                 bestPath[i].EnablePathToEnd();
             }
-            if (bestPath[i].isFrontEnd || bestPath[i].isRightEnd)
+            if (bestPath[i].isFrontEnd || bestPath[i].isRightEnd || _wallsAreUp)
             {
                 break;
             }

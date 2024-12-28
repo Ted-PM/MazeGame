@@ -12,6 +12,7 @@ public class SprintBarController : MonoBehaviour
 
     // basically governs how long player can sprint for
     public float timeToRefillSprint;
+    public float timeToDrainSprint;
 
     public float barPercentComplete;
     [SerializeField]
@@ -32,9 +33,9 @@ public class SprintBarController : MonoBehaviour
         StopCoroutine("StopSprinting");
         StopCoroutine("SprintCooldown");
         yield return null;
-        float time = timeToRefillSprint*(1-barPercentComplete);
+        float time = timeToDrainSprint * (1-barPercentComplete);
         float StartCompletness = barPercentComplete;
-        float timeToComplete = timeToRefillSprint;
+        float timeToComplete = timeToDrainSprint;
         float t = 1- barPercentComplete;
         _sprintBar.transform.localScale = new Vector3(1 * StartCompletness, 1, 1);
         while (t < 1 && _isSprinting)

@@ -138,8 +138,10 @@ public class MazeCell : MonoBehaviour
         if (transform.position.x == 0)
         {
             _leftWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
-            _leftWall.transform.localScale = _leftWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
-            _leftWall.transform.localPosition = _leftWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+            //_leftWall.transform.localScale = _leftWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _leftWall.GetComponentInChildren<MazeWall>().transform.localScale = _leftWall.GetComponentInChildren<MazeWall>().transform.localScale + new Vector3(0f,5*_ceelingHeight, 0f);
+            _leftWall.GetComponentInChildren<MazeWall>().transform.localPosition = _leftWall.GetComponentInChildren<MazeWall>().transform.localPosition + new Vector3(0f,2.5f*_ceelingHeight, 0f);
+            //_leftWall.transform.localPosition = _leftWall.transform.localPosition + new Vector3(0f, 5f*_ceelingHeight, 0f);
 
             // balls to left
             _backLeftCorner.SetActive(false);
@@ -150,8 +152,10 @@ public class MazeCell : MonoBehaviour
         if ((transform.position.x/10) == mazeWidth - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
-            _rightWall.transform.localScale = _rightWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
-            _rightWall.transform.localPosition = _rightWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+            //_rightWall.transform.localScale = _rightWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            _rightWall.GetComponentInChildren<MazeWall>().transform.localScale = _rightWall.GetComponentInChildren<MazeWall>().transform.localScale + new Vector3(0f, 5 * _ceelingHeight, 0f);
+            _rightWall.GetComponentInChildren<MazeWall>().transform.localPosition = _rightWall.GetComponentInChildren<MazeWall>().transform.localPosition + new Vector3(0f,2.5f*_ceelingHeight, 0f);
+            //_rightWall.transform.localPosition = _rightWall.transform.localPosition + new Vector3(0f, 5f * _ceelingHeight, 0f);
 
             // balls to right
             _backRightCorner.SetActive(false);
@@ -161,8 +165,11 @@ public class MazeCell : MonoBehaviour
         if (transform.position.z == 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
-            _backWall.transform.localScale = _backWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
-            _backWall.transform.localPosition = _backWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+            _backWall.GetComponentInChildren<MazeWall>().transform.localScale = _backWall.GetComponentInChildren<MazeWall>().transform.localScale + new Vector3(0f, 5 * _ceelingHeight, 0f);
+            _backWall.GetComponentInChildren<MazeWall>().transform.localPosition = _backWall.GetComponentInChildren<MazeWall>().transform.localPosition + new Vector3(0f, 2.5f * _ceelingHeight, 0f);
+
+            //_backWall.transform.localScale = _backWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            //_backWall.transform.localPosition = _backWall.transform.localPosition + new Vector3(0f, 5f * _ceelingHeight, 0f);
 
             // balls at back
             _backRightCorner.SetActive(false);
@@ -173,8 +180,11 @@ public class MazeCell : MonoBehaviour
         if ((transform.position.z/10) == mazeDepth - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().SetMaterial(_edgeMaterial);
-            _frontWall.transform.localScale = _frontWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
-            _frontWall.transform.localPosition = _frontWall.transform.localPosition + new Vector3(0f, 5.5f, 0f);
+            _frontWall.GetComponentInChildren<MazeWall>().transform.localScale = _frontWall.GetComponentInChildren<MazeWall>().transform.localScale + new Vector3(0f, 5 * _ceelingHeight, 0f);
+            _frontWall.GetComponentInChildren<MazeWall>().transform.localPosition = _frontWall.GetComponentInChildren<MazeWall>().transform.localPosition + new Vector3(0f, 2.5f * _ceelingHeight, 0f);
+
+            //_frontWall.transform.localScale = _frontWall.transform.localScale + new Vector3(0f, _ceelingHeight, 0f);
+            //_frontWall.transform.localPosition = _frontWall.transform.localPosition + new Vector3(0f, 5f * _ceelingHeight, 0f);
 
             // disable front corner balls
             _frontLeftCorner.SetActive(false);
@@ -240,55 +250,76 @@ public class MazeCell : MonoBehaviour
 
     public void ClearAll(int mazeWidth, int mazeDepth, float lowerTime)
     {
-        if (_leftVisited == false && transform.position.x > 0)
+        if (_leftVisited == false)// && transform.position.x > 0)
         {
             _leftWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_leftWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _leftWall.GetComponent<BoxCollider>()));
             //_leftWall.LowerWall(lowerTime);
             //_leftWall.SetActive(false);
         }
-        else if (_leftDoorAdded == true && transform.position.x > 0)
+        else if (_leftDoorAdded == true)// && transform.position.x > 0)
         {
             _leftDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_leftDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _leftDoor.GetComponentInChildren<MeshCollider>()));
         }
         //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
-        if (_rightVisited == false && transform.position.x < (mazeWidth*10) - 10)
+        if (_rightVisited == false)// && transform.position.x < (mazeWidth*10) - 10)
         {
             _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _rightWall.GetComponent<BoxCollider>()));
             //_rightWall.LowerWall(lowerTime);
             //_rightWall.gameObject.SetActive(false);
         }
-        else if (_rightDoorAdded == true && transform.position.x < (mazeWidth * 10) - 10)
+        else if (_rightDoorAdded == true)// && transform.position.x < (mazeWidth * 10) - 10)
         {
             _rightDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_rightDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _rightDoor.GetComponentInChildren<MeshCollider>()));
         }
         //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
-        if (_frontVisited == false && transform.position.z < (mazeDepth*10) - 10)
+        if (_frontVisited == false)// && transform.position.z < (mazeDepth*10) - 10)
         {
             _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _frontWall.GetComponent<BoxCollider>()));
             //_frontWall.LowerWall(lowerTime);
             //_frontWall.gameObject.SetActive(false);
         }
-        else if (_frontDoorAdded == true && transform.position.z < (mazeDepth * 10) - 10)
+        else if (_frontDoorAdded == true)// && transform.position.z < (mazeDepth * 10) - 10)
         {
             _frontDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_frontDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _frontDoor.GetComponentInChildren<MeshCollider>()));
         }
-        if (_backsVisited == false && transform.position.z > 0)
+        if (_backsVisited == false)// && transform.position.z > 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_backWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _backWall.GetComponent<BoxCollider>()));
             //_backWall.LowerWall(lowerTime);
             //_backWall.gameObject.SetActive(false);
         }
-        else if (_backDoorAdded == true && transform.position.z > 0)
+        else if (_backDoorAdded == true)// && transform.position.z > 0)
         {
             _backDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_backDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _backDoor.GetComponentInChildren<MeshCollider>()));
+        }
+
+        if (_backLeftCorner.activeSelf)
+        {
+            _backLeftCorner.GetComponent<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_backLeftCorner.GetComponent<MazeWall>().LowerWall(lowerTime, _backLeftCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_backRightCorner.activeSelf)
+        {
+            _backRightCorner.GetComponent<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_backRightCorner.GetComponent<MazeWall>().LowerWall(lowerTime, _backRightCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_frontLeftCorner.activeSelf)
+        {
+            _frontLeftCorner.GetComponent<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_frontLeftCorner.GetComponent<MazeWall>().LowerWall(lowerTime, _frontLeftCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_frontRightCorner.activeSelf)
+        {
+            _frontRightCorner.GetComponent<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_frontRightCorner.GetComponent<MazeWall>().LowerWall(lowerTime, _frontRightCorner.GetComponent<CapsuleCollider>()));
         }
     }
 
@@ -313,55 +344,76 @@ public class MazeCell : MonoBehaviour
 
     public void ResetAll(int mazeWidth, int mazeDepth, float raiseTime)
     {
-        if (_leftVisited == false && transform.position.x > 0)
+        if (_leftVisited == false)// && transform.position.x > 0)
         {
             _leftWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_leftWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _leftWall.GetComponent<BoxCollider>()));
             //_leftWall.RaiseWall(raiseTime);
             //_leftWall.gameObject.SetActive(true);
         }
-        else if (_leftDoorAdded == true && transform.position.x > 0)
+        else if (_leftDoorAdded == true)// && transform.position.x > 0)
         {
             _leftDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_leftDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _leftDoor.GetComponentInChildren<MeshCollider>()));
         }
         //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
-        if (_rightVisited == false && transform.position.x < mazeWidth * 10 - 1)
+        if (_rightVisited == false)// && transform.position.x < mazeWidth * 10 - 1)
         {
             _rightWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_rightWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _rightWall.GetComponent<BoxCollider>()));
             //_rightWall.RaiseWall(raiseTime);
             //_rightWall.gameObject.SetActive(true);
         }
-        else if (_rightDoorAdded == true && transform.position.x < (mazeWidth * 10) - 10)
+        else if (_rightDoorAdded == true)// && transform.position.x < (mazeWidth * 10) - 10)
         {
             _rightDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_rightDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _rightDoor.GetComponentInChildren<MeshCollider>()));
         }
         //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
-        if (_frontVisited == false && transform.position.z < mazeDepth* 10 - 1)
+        if (_frontVisited == false)// && transform.position.z < mazeDepth* 10 - 1)
         {
             _frontWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_frontWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _frontWall.GetComponent<BoxCollider>()));
             //_frontWall.RaiseWall(raiseTime);
             //_frontWall.gameObject.SetActive(true);
         }
-        else if (_frontDoorAdded == true && transform.position.z < (mazeDepth * 10) - 10)
+        else if (_frontDoorAdded == true)// && transform.position.z < (mazeDepth * 10) - 10)
         {
             _frontDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_frontDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _frontDoor.GetComponentInChildren<MeshCollider>()));
         }
-        if (_backsVisited == false && transform.position.z > 0)
+        if (_backsVisited == false)// && transform.position.z > 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_backWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _backWall.GetComponent<BoxCollider>()));
             //_backWall.RaiseWall(raiseTime);
             //_backWall.gameObject.SetActive(true);
         }
-        else if (_backDoorAdded == true && transform.position.z > 0)
+        else if (_backDoorAdded == true)// && transform.position.z > 0)
         {
             _backDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_backDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _backDoor.GetComponentInChildren<MeshCollider>()));
+        }
+
+        if (_backLeftCorner.activeSelf)
+        {
+            _backLeftCorner.GetComponent<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_backLeftCorner.GetComponent<MazeWall>().RaiseWall(raiseTime, _backLeftCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_backRightCorner.activeSelf)
+        {
+            _backRightCorner.GetComponent<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_backRightCorner.GetComponent<MazeWall>().RaiseWall(raiseTime, _backRightCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_frontLeftCorner.activeSelf)
+        {
+            _frontLeftCorner.GetComponent<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_frontLeftCorner.GetComponent<MazeWall>().RaiseWall(raiseTime, _frontLeftCorner.GetComponent<CapsuleCollider>()));
+        }
+        if (_frontRightCorner.activeSelf)
+        {
+            _frontRightCorner.GetComponent<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_frontRightCorner.GetComponent<MazeWall>().RaiseWall(raiseTime, _frontRightCorner.GetComponent<CapsuleCollider>()));
         }
     }
 }
