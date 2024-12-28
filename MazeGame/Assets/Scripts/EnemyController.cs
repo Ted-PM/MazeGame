@@ -73,7 +73,7 @@ public class EnemyController : MonoBehaviour
             float playerDistanceX = transform.position.x - target.position.x;
             float playerDistanceZ = transform.position.z - target.position.z;
 
-            if ((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)
+            if (((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
             {
                 //Debug.Log("chasing player");
                 _isRoaming = false ;
@@ -101,6 +101,14 @@ public class EnemyController : MonoBehaviour
                 GetComponent<NavMeshAgent>().angularSpeed = 0;
                 GetComponentInChildren<Animator>().enabled = false;
                 beenSeen = true;
+            }
+            else if (isAnyoneLookingAtMe && beenSeen && !BigMazeGenerator.Instance._wallsAreUp)
+            {
+                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                GetComponent<NavMeshAgent>().speed = 8;
+                GetComponent<NavMeshAgent>().angularSpeed = 180;
+                GetComponentInChildren<Animator>().enabled = true;
+                beenSeen = false;
             }
             else if (beenSeen)
             {

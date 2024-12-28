@@ -552,9 +552,6 @@ public class BigMazeGenerator : MonoBehaviour
         _wallsMovingSound.Stop();
         _wallsMoving = false;
         _canResetWalls = true;
-        // because player is frozen when walls begin lowering, unfreeze them when they are done raising
-        FindObjectOfType<PlayerController>().UnfreezePlayer();
-        _wallsAreUp = true;
 
         // decrease the speed of all enemies
         for (int i = 0; i < _enemyList.Count(); i++)
@@ -564,6 +561,18 @@ public class BigMazeGenerator : MonoBehaviour
                 _enemyList[i].DecreaseEnemySpeed();
             }
         }
+
+        // use coroutine because need to wait for navmeshs / meshes update (or else enemy seen then unseen at time is killed)
+        StartCoroutine(UpdateWallsAreUp());
+    }
+
+    private IEnumerator UpdateWallsAreUp()
+    {
+
+        yield return new WaitForSeconds(0.1f);
+        // because player is frozen when walls begin lowering, unfreeze them when they are done raising
+        FindObjectOfType<PlayerController>().UnfreezePlayer();
+        _wallsAreUp = true;
     }
 
     /*

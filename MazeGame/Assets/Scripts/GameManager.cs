@@ -31,6 +31,14 @@ public class GameManager : MonoBehaviour
         //_deathScreen.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
+    }
+
     public void WelcomeMenu()
     {
         Cursor.visible = true;
