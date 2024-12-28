@@ -2509,7 +2509,7 @@ MonoBehaviour:
   _numWallsToBreak: 25
   _wallsAreUp: 0
   _timeToLowerWalls: 2
-  _timeToRaiseWalls: 0.05
+  _timeToRaiseWalls: 0.5
   _enemyFallHeight: 30
   _pathLinePrefab: {fileID: 6895372648256399351, guid: 5bc31d423ec8ac04dac36759938c7593, type: 3}
   _wallsMovingSound: {fileID: 244403357}
@@ -3115,7 +3115,6 @@ MonoBehaviour:
   _sprintMultiplier: 2
   isSprinting: 0
   _sprintBar: {fileID: 1354280962}
-  _playerCamera: {fileID: 963194225}
 --- !u!54 &1447352212
 Rigidbody:
   m_ObjectHideFlags: 0
