@@ -454,6 +454,8 @@ public class BigMazeGenerator : MonoBehaviour
 
             _wallsMoving = true;
             _wallsMovingSound.Play();
+            FindObjectOfType<PlayerController>().ShakeCamera(_timeToLowerWalls);
+            //PlayerController
 
             // calls member function of MazeCell to lower all the walls
             for (int i = 0; i < _mazeWidth; i++)
@@ -524,6 +526,7 @@ public class BigMazeGenerator : MonoBehaviour
         if (!_wallsMoving)
         {
             _wallsMovingSound.Play();
+            FindObjectOfType<PlayerController>().ShakeCamera(_timeToRaiseWalls);
             // go through all cells and call a member function to raise them 
             for (int i = 0; i < _mazeWidth; i++)
             {

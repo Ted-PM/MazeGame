@@ -34,9 +34,15 @@ public class PlayerController : MonoBehaviour
     public bool isSprinting = false;
     [SerializeField]
     private SprintBarController _sprintBar;
-    //[SerializeField]
-    //[SerializeField]
-    //private AudioSource _playerKilled;
+
+    [SerializeField]
+    private GameObject _playerCamera;
+
+    //float shake = 1.0f;
+    float shakeAmount = 0.4f;
+    float decreaseFactor = 1.0f;
+
+
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider>();
@@ -75,54 +81,20 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKey("w"))
         {
-            //StartCoroutine(WalkingSound());
-            //if (!_stepSoundPlaying)
-            //{
-            //    _isWalking = true;
-            //    StopCoroutine(WalkSound());
-            //    StartCoroutine(WalkSound());
-            //}
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
         }
         if (Input.GetKey("s"))
         {
-            //if (!_stepSoundPlaying)
-            //{
-            //    _isWalking = true;
-            //    StopCoroutine(WalkSound());
-            //    StartCoroutine(WalkSound());
-            //}
             transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
         }
         if (Input.GetKey("a"))
         {
-            //if (!_stepSoundPlaying)
-            //{
-            //    _isWalking = true;
-            //    StopCoroutine(WalkSound());
-            //    StartCoroutine(WalkSound());
-            //}
             transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
         }
         if (Input.GetKey("d"))
         {
-            //if (!_stepSoundPlaying)
-            //{
-            //    _isWalking = true;
-            //    StopCoroutine(WalkSound());
-            //    StartCoroutine(WalkSound());
-            //}
             transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         }
-        //if (!Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
-        //{
-        //    if (_stepSoundPlaying)
-        //    {
-        //        StopCoroutine(WalkSound());
-        //        _stepSoundPlaying = false;
-        //        _isWalking = false;
-        //    }
-        //}
 
         if (Input.GetKey(KeyCode.Space) && canJump)
         {
@@ -130,51 +102,123 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(transform.up * jumpForce);
         }
 
-
-        if (Input.GetKeyDown("left shift") && _sprintBar.canSprint && !isSprinting)
+        if (Input.GetKeyDown("q"))
         {
+            ShakeCamera(1.0f);
+
+            //_playerCamera.GetComponent<Animator>().SetTrigger("ShakeCameraTrigger"); 
+        }
+
+
+        if (Input.GetKeyDown("left shift") && _sprintBar.canSprint  && !isSprinting)
+        {
+            //StopCoroutine("PlayerWalkingAnim");
+            //StartCoroutine(PlayerWalkingAnim(0.2f, 3f));
             StartSprinting();
         }
         else if ((!Input.GetKey("left shift") && isSprinting) || !_sprintBar.canSprint)
         {
+            //StopCoroutine("PlayerWalkingAnim");
             StopSprinting();
         }
 
         StartCoroutine(PlayerIsMoving());
+
+        if (_isWalking && !_walkingAnimPlaying)
+        {
+            StartCoroutine(PlayerWalkingAnim());
+        }
         
         if (_isWalking && !_stepSoundPlaying)
         {
-            //StopCoroutine(WalkSound());
+            //StopCoroutine("PlayerWalkingAnim");
+            //StartCoroutine(PlayerWalkingAnim());
+            //_playerCamera.GetComponent<Animator>().SetTrigger("ShakeCameraTrigger");
             StartCoroutine(WalkSound());
+            
         }
         else if (!_isWalking) 
         {
+            //_playerCamera.GetComponent<Animator>().ResetTrigger("ShakeCameraTrigger");
+            StopCoroutine("PlayerWalkingAnim");
             StopCoroutine(WalkSound());
-            //_stepSoundPlaying = false;
         }
-        //else
-        //{
-        //    StartCoroutine(SprintCooldown());
-        //}
     }
 
-    //private void WalkingSound()
-    //{
-    //    //AudioSource tempStep = _step;
-    //    if (!_step.isPlaying && !isSprinting && canJump)
-    //    {
-    //        _step.Play();
-    //    }
-    //    //yield return new WaitForSeconds(.5f);
-    //    //if (tempStep.isPlaying)
-    //    //{
-    //    //    tempStep.Stop();
-    //    //}
-    //    //else if (isSprinting)
-    //    //{
+    private bool _walkingAnimPlaying = false;
 
-    //    //}
+    private IEnumerator PlayerWalkingAnim()
+    {
+        if (canJump && _isWalking)
+        {
+            _walkingAnimPlaying = true;
+            float time = 0.0f;
+            float speed = 0.0f;
+            if (isSprinting)
+            {
+                time = 0.4f;
+                speed = 1.5f;
+            }
+            else
+            {
+                time = 0.6f;
+                speed = 1f;
+            }
+            _playerCamera.GetComponent<Animator>().speed = speed;
+            _playerCamera.GetComponent<Animator>().SetTrigger("ShakeCameraTrigger");
+            yield return new WaitForSeconds(time);
+            _playerCamera.GetComponent<Animator>().SetTrigger("StopCameraShake");
+            //_playerCamera.GetComponent<Animator>().ResetTrigger("ShakeCameraTrigger");
+            StartCoroutine(PlayerWalkingAnim());
+        }
+        else
+        {
+            _walkingAnimPlaying = false;
+        }
+    }
+
+    public void ShakeCamera(float shake)
+    {
+        Debug.Log("Start Shake cam");
+        StopCoroutine("PlayerWalkingAnim");
+        StartCoroutine(_ShakeCamera(shake));
+    }
+
+    //private IEnumerator _ShakeCamera2(float time)
+    //{
+
     //}
+
+    private IEnumerator _ShakeCamera(float shake)
+    {
+        yield return null;
+        Debug.Log("shaking, Shake = " + shake);
+
+        if (shake > 0)
+        {
+            Vector3 oldPos = _playerCamera.transform.localPosition;
+            Vector3 newPos = Random.insideUnitSphere * shakeAmount;
+
+            float time = 0;
+            float t = 0;
+            while (t < 1)
+            {
+                time += Time.deltaTime;
+                t = time / .2f;
+                _playerCamera.transform.localPosition = Vector3.Lerp(oldPos, newPos, t);
+                Debug.Log("Cam Pos = " + _playerCamera.transform.localPosition.x + ", " + _playerCamera.transform.localPosition.y + ", " + _playerCamera.transform.localPosition.z);
+            }
+
+            //_playerCamera.transform.localPosition = Random.insideUnitSphere * shakeAmount;
+            shake -= Time.deltaTime * decreaseFactor;
+            StartCoroutine(_ShakeCamera(shake));
+        }
+        else
+        {
+            _playerCamera.transform.localPosition = new Vector3(0, 0, 0);
+            shake = 0.0f;
+        }
+    }
 
     private IEnumerator PlayerIsMoving()
     {
@@ -196,13 +240,20 @@ public class PlayerController : MonoBehaviour
     {
         if (canJump && _isWalking && isSprinting)
         {
+            var leftStep = _step;
+            var rightStep = _step;
             _stepSoundPlaying = true;
             if (!_step.isPlaying)
             {
-                _step.Play();
+                leftStep.Play();
+                yield return new WaitForSeconds(.15f);
+                rightStep.Play();
+                //_step.Play();
             }
-            yield return new WaitForSeconds(.3f);
-            _step.Stop();
+            yield return new WaitForSeconds(.15f);
+            //_step.Stop();
+            leftStep.Stop();
+            rightStep.Stop();
             _stepSoundPlaying = false;
             //if (!_step.isPlaying)
             //{
@@ -211,13 +262,20 @@ public class PlayerController : MonoBehaviour
         }
         else if (canJump && _isWalking)
         {
+            var leftStep = _step; 
+            var rightStep = _step;  
             _stepSoundPlaying = true;
             if (!_step.isPlaying)
             {
-                _step.Play();
+                leftStep.Play();
+                yield return new WaitForSeconds(.35f);
+                rightStep.Play();
+                //_step.Play();
             }
-            yield return new WaitForSeconds(.7f);
-            _step.Stop();
+            yield return new WaitForSeconds(.35f);
+            leftStep.Stop();
+            rightStep.Stop();
+            //_step.Stop();
             _stepSoundPlaying = false;
             //if (!_step.isPlaying)
             //{
