@@ -195,7 +195,8 @@ public class MazeCell : MonoBehaviour
     public void ClearLeftWall()
     {
         _leftVisited = true;
-        _leftWall.SetActive(false);
+        //_leftWall.SetActive(false);
+        Destroy(_leftWall);
     }
 
     public bool GetLeftWallStatus() { return _leftVisited; }
@@ -209,7 +210,8 @@ public class MazeCell : MonoBehaviour
     public void ClearRightWall()
     {
         _rightVisited = true;
-        _rightWall.SetActive(false);
+        //_rightWall.SetActive(false);
+        Destroy( _rightWall );
     }
 
     public bool GetRightWallStatus() { return _rightVisited; }
@@ -223,7 +225,8 @@ public class MazeCell : MonoBehaviour
     public void ClearFrontWall()
     {
         _frontVisited = true;
-        _frontWall.SetActive(false);
+        //_frontWall.SetActive(false);
+        Destroy (_frontWall );
     }
 
     public bool GetFrontWallStatus() { return _frontVisited; }
@@ -237,7 +240,8 @@ public class MazeCell : MonoBehaviour
     public void ClearBackWall()
     {
         _backsVisited = true;
-        _backWall.SetActive(false);
+        //_backWall.SetActive(false);
+        Destroy ( _backWall );
     }
 
     public bool GetBackWallStatus() { return _backsVisited; }
@@ -246,6 +250,26 @@ public class MazeCell : MonoBehaviour
     {
         _backDoorAdded = true;
         _backDoor.SetActive(true);
+    }
+
+    public void DestroyUnactiveDoors()
+    {
+        if (!_leftDoorAdded)
+        {
+            Destroy(_leftDoor);
+        }
+        if (!_rightDoorAdded)
+        {
+            Destroy(_rightDoor);
+        }
+        if (!_frontDoorAdded)
+        {
+            Destroy(_frontDoor);
+        }
+        if (!_backDoorAdded)
+        {
+            Destroy(_backDoor);
+        }
     }
 
     public void ClearAll(int mazeWidth, int mazeDepth, float lowerTime)

@@ -67,10 +67,14 @@ public class MazeWall : MonoBehaviour
             //_navMeshObstacle.carving = false;
             for (int i = 0; i < _navMeshObstacle.Count; i++)
             {
-                _navMeshObstacle[i].enabled = false;
+                //_navMeshObstacle[i].enabled = false;
+                _navMeshObstacle[i].carving = false;
             }
             //_boxCollider.transform.localPosition -= new Vector3 (0f, 11f, 0f);
-            _collider.enabled = false;
+            if (_collider != null)
+            {
+                _collider.enabled = false;
+            }
         }
         else
         {
@@ -97,7 +101,8 @@ public class MazeWall : MonoBehaviour
 
             for (int i = 0; i < _navMeshObstacle.Count; i++)
             {
-                _navMeshObstacle[i].enabled = true;
+                //_navMeshObstacle[i].enabled = true;
+                _navMeshObstacle[i].carving = true;
             }
 
             while (t < 1)
@@ -111,8 +116,10 @@ public class MazeWall : MonoBehaviour
 
             //_boxCollider.transform.localPosition += new Vector3(0f, 11f, 0f);
             //_navMeshObstacle.carving = true;
-
-            _collider.enabled = true;
+            if (_collider != null)
+            {
+                _collider.enabled = true;
+            }
         }
         else
         {

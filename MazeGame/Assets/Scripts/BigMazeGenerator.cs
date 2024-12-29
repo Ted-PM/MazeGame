@@ -162,13 +162,13 @@ public class BigMazeGenerator : MonoBehaviour
 
         if (endBorder == 0)
         {
-            endCell[0] = Random.Range(0, _mazeDepth);
-            endCell[1] = _mazeWidth - 1;
+            endCell[0] = Random.Range(0, _mazeWidth);
+            endCell[1] = _mazeDepth - 1;
         }
         else
         {
-            endCell[0] = _mazeDepth - 1;
-            endCell[1] = Random.Range(0, _mazeWidth);
+            endCell[0] = _mazeWidth - 1;
+            endCell[1] = Random.Range(0, _mazeDepth);
         }
 
         return endCell;
@@ -183,8 +183,35 @@ public class BigMazeGenerator : MonoBehaviour
 
     private IEnumerator WaitThenStartGame()
     {
+        DisableDuplicateWalls();
         yield return new WaitForSeconds(3);
         StartGame();
+    }
+
+    // row major
+
+    private void DisableDuplicateWalls()//int x, int z)
+    {
+        //bool result = false;
+
+        for (int i = 0; i < _mazeWidth; i++)
+        {
+            for (int j = 0; j < _mazeDepth; j++)
+            {
+                _mazeGrid[i, j].DestroyUnactiveDoors();
+                if (!_mazeGrid[i, j].GetRightWallStatus())
+                {
+                    _mazeGrid[i, j].ClearRightWall();
+                }
+                if (!_mazeGrid[i, j].GetFrontWallStatus())
+                {
+                    _mazeGrid[i, j].ClearFrontWall();
+                }
+            }
+        }
+        //DestroyUnactiveDoors()
+
+        //return result;
     }
 
     /* GetWallsToBreak()
@@ -242,7 +269,7 @@ public class BigMazeGenerator : MonoBehaviour
         // check if the current cell needs to break random walls (i.e. is in the wallsToBreak array)
         for (int i = 0; i < _numWallsToBreak; i++)
         {
-            if (currentCell == _mazeGrid[wallsToBreak[0, i], wallsToBreak[1, i]] && currentCell.isVisited == false)
+            if (currentCell == _mazeGrid[wallsToBreak[1, i], wallsToBreak[0, i]] && currentCell.isVisited == false)
             {
                 // if it should have random walls broken,
                 MazeCell randomCell;
