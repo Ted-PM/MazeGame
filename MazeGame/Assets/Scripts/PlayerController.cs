@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float movementSpeed;
+    private float _baseSpeed;
     public float jumpForce;
+    private float _baseJump;
 
     public Transform playerCamera;
     public float lookSpeed = 2.0f;
@@ -45,6 +47,13 @@ public class PlayerController : MonoBehaviour
     float shakeAmount = 0.4f;
     float decreaseFactor = 1.0f;
 
+    [HideInInspector]
+    public bool playerInvisible;
+    [HideInInspector]
+    public bool speedItemUsed;
+
+    //private IEnumerator _sprintCoroutine;
+    //private IEnumerator _stopSprintCoroutine;
 
     private void Awake()
     {
@@ -54,17 +63,24 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        //_sprintCoroutine = _sprintBar.StartSprinting();
+        //_stopSprintCoroutine = _sprintBar.StopSprinting();
+        playerInvisible = false;
+        speedItemUsed = false;
         _heartBeat.Play();
         canJump = true;
         isSprinting = false;
         _stepSoundPlaying = false;
         _isWalking = false;
+        _baseSpeed = movementSpeed;
+        _baseJump = jumpForce;
         //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
     void Update()
     {
         lookAtMouse();
+        PlayerItemSelector();
 
         if (!rb.isKinematic)
         {
@@ -81,8 +97,40 @@ public class PlayerController : MonoBehaviour
         //Debug.Log(sprintRatio);
     }
 
+    void PlayerItemSelector()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Inventory.instance.SelectSlot(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Inventory.instance.SelectSlot(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            Inventory.instance.SelectSlot(2);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            Inventory.instance.SelectSlot(3);
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Inventory.instance.UseItem();
+        }
+
+    }
     void Mover()
     {
+        //Collider[] hitColliders = Physics.OverlapSphere(transform.position, 0.6f);
+        //foreach (var hitCollider in hitColliders)
+        //{
+        //    var directionFromPlayer = transform.localEulerAngles;
+        //    //hitCollider.SendMessage("AddDamage");
+        //}
+
         if (Input.GetKey("w"))
         {
             transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
@@ -313,7 +361,8 @@ public class PlayerController : MonoBehaviour
                 //rb.constraints = RigidbodyConstraints.FreezePosition;
                 //rb.constraints = RigidbodyConstraints.FreezeRotation;
                 //MazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
-                StartCoroutine(_resetWallsBar.StartSprinting());
+                //StartCoroutine(_resetWallsBar.StartSprinting());
+                _resetWallsBar._isSprinting = true;
                 //_canInteractWithWalls = false;
                 BigMazeGenerator.Instance.ClearAllWalls(waitBeforeResetWallsTime);
             }
@@ -331,11 +380,15 @@ public class PlayerController : MonoBehaviour
         //Debug.Log("current speed: " + movementSpeed);
         if (!isSprinting)
         {
-            movementSpeed = movementSpeed * _sprintMultiplier;
+            //movementSpeed = movementSpeed * _sprintMultiplier;
+            movementSpeed += _baseSpeed;
             isSprinting = true;
             if (_sprintBar.canSprint)
             {
-                StartCoroutine(_sprintBar.StartSprinting());
+                _sprintBar._isSprinting = true;
+                //StartCoroutine(_sprintBar.StartSprinting());
+                //StartCoroutine(_sprintBar._startSprinting);
+                //StartCoroutine(_sprintCoroutine);
             }
             //Debug.Log("start coroutine ");
         }
@@ -355,12 +408,17 @@ public class PlayerController : MonoBehaviour
         //Debug.Log("current stop speed: " + movementSpeed);
         if (isSprinting)
         {
-            movementSpeed = movementSpeed / _sprintMultiplier;
+            //movementSpeed = movementSpeed / _sprintMultiplier;
+            movementSpeed -= _baseSpeed;
             isSprinting = false;
-            if (_sprintBar.canSprint) 
-            { 
-                StartCoroutine(_sprintBar.StopSprinting());
-            }
+            _sprintBar._isSprinting = false;
+            //if (_sprintBar.canSprint) 
+            //{
+            //    _sprintBar._isSprinting = false;
+            //    //StartCoroutine(_sprintBar.StopSprinting());
+            //    //StartCoroutine(_sprintBar._stopSprinting);
+            //    //StartCoroutine(_stopSprintCoroutine);
+            //}
             //Debug.Log("start stop corouting " );
         }   
     }
@@ -415,4 +473,110 @@ public class PlayerController : MonoBehaviour
         playerCamera.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
     }
+
+    public void PlayerUseItem(int itemID)
+    {
+        switch (itemID)
+        {
+            case 0:
+                Debug.Log("item 0 used");
+                StartCoroutine(WaitForPlayerBaseSpeed());
+                //StartCoroutine(IncreaseBaseSpeed());
+                break;
+            case 1:
+                Debug.Log("item 1 used");
+                StartCoroutine(WaitForPlayerVisible());
+                break;
+            case 2:
+                Debug.Log("item 2 used");
+                RefillSprint();
+                break;
+            case 3:
+                Debug.Log("item 3 used");
+                StartCoroutine(RefillWalls());
+                break;
+            default:
+                Debug.LogWarning("That item doesn't have a characteristic attached to it");
+                break;
+        }
+    }
+
+    private IEnumerator WaitForPlayerBaseSpeed()
+    {
+        while (speedItemUsed)
+        {
+            yield return null;
+        }
+        StartCoroutine(IncreaseBaseSpeed());
+    }
+    private IEnumerator IncreaseBaseSpeed()
+    {
+        speedItemUsed = true;
+        movementSpeed += 2;
+        float currentSpeed = movementSpeed;
+        Debug.Log("item 0 used, new speed = " + movementSpeed);
+        yield return new WaitForSeconds(5);
+        movementSpeed -= 2;
+        speedItemUsed = false;
+        Debug.Log("item 0 used, final speed = " + movementSpeed);
+    }
+
+    private IEnumerator WaitForPlayerVisible()
+    {
+        while (playerInvisible)
+        {
+            yield return null;
+        }
+        StartCoroutine(GoInvisible());
+    }
+
+    private IEnumerator GoInvisible()
+    {
+        Debug.Log("Player Invisible");
+        playerInvisible = true;
+        yield return new WaitForSeconds(5);
+        playerInvisible = false;
+        Debug.Log("Player Visible");
+    }
+    private IEnumerator RefillWalls()
+    {
+        while (!BigMazeGenerator.Instance._canResetWalls)
+        {
+            yield return null;
+        }    
+
+        _resetWallsBar.RefillBar();
+    }
+    private void RefillSprint()
+    {
+        //if (isSprinting)
+        //{
+        //    StopCoroutine(_sprintCoroutine);
+        //}
+        //else
+        //{
+        //    StopCoroutine(_stopSprintCoroutine);
+        //}
+        //Debug.Log("Coroutines stopped");
+
+        //StartCoroutine(_sprintBar.RefillBar());
+        _sprintBar.RefillBar();
+
+        //if (isSprinting)
+        //{
+        //    isSprinting = false;
+        //    StartSprinting();
+        //}
+        //if (isSprinting)
+        //{
+        //    StopSprinting();
+        //    StartCoroutine(_sprintBar.RefillBar());
+        //    StartSprinting();
+        //}
+        //else
+        //{
+        //    StartCoroutine(_sprintBar.RefillBar());
+        //}
+    }
+
 }

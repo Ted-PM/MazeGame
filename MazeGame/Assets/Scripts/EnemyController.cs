@@ -70,10 +70,11 @@ public class EnemyController : MonoBehaviour
     {
         if (landed)
         {
+            
             float playerDistanceX = transform.position.x - target.position.x;
             float playerDistanceZ = transform.position.z - target.position.z;
 
-            if (((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
+            if (!FindFirstObjectByType<PlayerController>().playerInvisible &&(((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
             {
                 //Debug.Log("chasing player");
                 _isRoaming = false ;
@@ -93,7 +94,7 @@ public class EnemyController : MonoBehaviour
             //if ((transform.position.x + -) )
 
             bool isAnyoneLookingAtMe = IsAnyoneLookingAtMe();
-            if (isAnyoneLookingAtMe && !beenSeen && BigMazeGenerator.Instance._wallsAreUp)
+            if (isAnyoneLookingAtMe && !beenSeen && BigMazeGenerator.Instance._wallsAreUp && !FindFirstObjectByType<PlayerController>().playerInvisible)
             {
                 Debug.Log("Seen");
                 GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
@@ -102,7 +103,7 @@ public class EnemyController : MonoBehaviour
                 GetComponentInChildren<Animator>().enabled = false;
                 beenSeen = true;
             }
-            else if (isAnyoneLookingAtMe && beenSeen && !BigMazeGenerator.Instance._wallsAreUp)
+            else if (isAnyoneLookingAtMe && beenSeen && (!BigMazeGenerator.Instance._wallsAreUp || FindFirstObjectByType<PlayerController>().playerInvisible))
             {
                 GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                 GetComponent<NavMeshAgent>().speed = 8;

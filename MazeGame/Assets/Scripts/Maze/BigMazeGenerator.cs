@@ -194,9 +194,9 @@ public class BigMazeGenerator : MonoBehaviour
     {
         //bool result = false;
 
-        for (int i = 0; i < _mazeWidth; i++)
+        for (int i = 0; i < _mazeWidth-1; i++)
         {
-            for (int j = 0; j < _mazeDepth; j++)
+            for (int j = 0; j < _mazeDepth-1; j++)
             {
                 _mazeGrid[i, j].DestroyUnactiveDoors();
                 if (!_mazeGrid[i, j].GetRightWallStatus())
@@ -287,6 +287,11 @@ public class BigMazeGenerator : MonoBehaviour
         {
             ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
+
+        if (TrueForXFalse(2))
+        {
+            ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        }
             //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemFront((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
@@ -312,6 +317,14 @@ public class BigMazeGenerator : MonoBehaviour
             }
         } while (nextCell != null);
         // exit loop if there was no unvisited neightbor, therby backtracking recursively to prev visited cell
+    }
+
+    private bool TrueForXFalse(int x)
+    {
+        int temp = 0;
+        temp = Random.Range(0, x);
+
+        return temp == 0;
     }
 
     // returns true or false randomly, used to decide if broken wall will have door instead
