@@ -3311,8 +3311,11 @@ MonoBehaviour:
   isSprinting: 0
   _sprintBar: {fileID: 1354280962}
   _resetWallsBar: {fileID: 2143034096}
-  playerInvisible: 0
   speedItemUsed: 0
+  isCrouching: 0
+  crouchAmount: 0.5
+  timeToCrouch: 0.2
+  canCrouch: 0
 --- !u!54 &1447352212
 Rigidbody:
   m_ObjectHideFlags: 0

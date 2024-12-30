@@ -74,7 +74,7 @@ public class EnemyController : MonoBehaviour
             float playerDistanceX = transform.position.x - target.position.x;
             float playerDistanceZ = transform.position.z - target.position.z;
 
-            if (!FindFirstObjectByType<PlayerController>().playerInvisible &&(((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
+            if (!PlayerController.playerInvisible &&(((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
             {
                 //Debug.Log("chasing player");
                 _isRoaming = false ;
@@ -94,7 +94,7 @@ public class EnemyController : MonoBehaviour
             //if ((transform.position.x + -) )
 
             bool isAnyoneLookingAtMe = IsAnyoneLookingAtMe();
-            if (isAnyoneLookingAtMe && !beenSeen && BigMazeGenerator.Instance._wallsAreUp && !FindFirstObjectByType<PlayerController>().playerInvisible)
+            if (isAnyoneLookingAtMe && !beenSeen && BigMazeGenerator.Instance._wallsAreUp && !PlayerController.playerInvisible)
             {
                 Debug.Log("Seen");
                 GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
@@ -103,7 +103,7 @@ public class EnemyController : MonoBehaviour
                 GetComponentInChildren<Animator>().enabled = false;
                 beenSeen = true;
             }
-            else if (isAnyoneLookingAtMe && beenSeen && (!BigMazeGenerator.Instance._wallsAreUp || FindFirstObjectByType<PlayerController>().playerInvisible))
+            else if (isAnyoneLookingAtMe && beenSeen && (!BigMazeGenerator.Instance._wallsAreUp || PlayerController.playerInvisible))
             {
                 GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                 GetComponent<NavMeshAgent>().speed = 8;

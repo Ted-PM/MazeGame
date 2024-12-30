@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField]
     private float _sprintMultiplier;
+    [HideInInspector]
     public bool isSprinting = false;
     [SerializeField]
     private SprintBarController _sprintBar;
@@ -50,9 +51,16 @@ public class PlayerController : MonoBehaviour
     float decreaseFactor = 1.0f;
 
     [HideInInspector]
-    public bool playerInvisible;
+    public static bool playerInvisible;
     [HideInInspector]
     public bool speedItemUsed;
+
+    [HideInInspector]
+    public bool isCrouching;
+    public float crouchAmount;
+    public float timeToCrouch;
+    [HideInInspector]
+    public bool canCrouch;
 
     //private IEnumerator _sprintCoroutine;
     //private IEnumerator _stopSprintCoroutine;
@@ -76,6 +84,8 @@ public class PlayerController : MonoBehaviour
         _isWalking = false;
         _baseSpeed = movementSpeed;
         _baseJump = jumpForce;
+        isCrouching = false;
+        canCrouch = true;
         //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
@@ -101,11 +111,28 @@ public class PlayerController : MonoBehaviour
         {
             StopSprinting();
         }
-        Debug.Log("Velocity: " + rb.velocity.magnitude);
+        //Debug.Log("Velocity: " + rb.velocity.magnitude);
     }
 
     void PlayerItemSelector()
     {
+        float wheele = Input.mouseScrollDelta.y;
+
+        if (wheele > 0)
+        {
+            for (int i = 0; i < (int)wheele; i++)
+            {
+                Inventory.instance.SelectNextSlot();
+            }
+        }
+        else if (wheele < 0)
+        {
+            for (int i = (int)wheele; i < 0; i++)
+            {
+                Inventory.instance.SelectPrevSlot();
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Inventory.instance.SelectSlot(0);
@@ -128,6 +155,49 @@ public class PlayerController : MonoBehaviour
             Inventory.instance.UseItem();
         }
 
+    }
+
+    private IEnumerator Crouch()
+    {
+        canCrouch = false;
+        isCrouching = true;
+        maxSpeed -= 2;
+        float time = 0f;
+        float t = 0f;
+
+        while ( t < 1)
+        {
+            yield return null;
+            time += Time.deltaTime;
+            t = time / timeToCrouch;
+            transform.localScale = Vector3.Lerp(new Vector3(1, 1, 1), new Vector3(1, 0.5f, 1), t);
+        }
+
+        yield return null;
+        canCrouch = true;
+        //timeToCrouch
+        
+        //transform.localScale = transform.localScale - new Vector3(0, crouchAmount, 0);
+    }
+
+    private IEnumerator UnCrouch()
+    {
+        canCrouch = false;
+        float time = 0f;
+        float t = 0f;
+
+        while (t < 1)
+        {
+            yield return null;
+            time += Time.deltaTime;
+            t = time / timeToCrouch;
+            transform.localScale = Vector3.Lerp(new Vector3(1, 0.5f, 1), new Vector3(1, 1, 1), t);
+        }
+        yield return null;
+        maxSpeed += 2;
+        canCrouch = true;
+        //transform.localScale = transform.localScale + new Vector3(0, crouchAmount, 0);
+        isCrouching = false ;
     }
     void Mover()
     {
@@ -215,19 +285,22 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        if (Input.GetKey("left shift") && _sprintBar.canSprint  && !isSprinting)
+
+        StartCoroutine(PlayerIsMoving());
+
+
+        if (Input.GetKey("left shift") && _sprintBar.canSprint && !isSprinting && rb.velocity.magnitude > 0.1f && !isCrouching)
         {
             //StopCoroutine("PlayerWalkingAnim");
             //StartCoroutine(PlayerWalkingAnim(0.2f, 3f));
             StartSprinting();
         }
-        else if ((!Input.GetKey("left shift") && isSprinting) || !_sprintBar.canSprint)
+        else if ((!Input.GetKey("left shift")  || !_sprintBar.canSprint || rb.velocity.magnitude <= 0.1f || isCrouching) && isSprinting)
         {
+            Debug.Log("Stop sprinting");
             //StopCoroutine("PlayerWalkingAnim");
             StopSprinting();
         }
-
-        StartCoroutine(PlayerIsMoving());
 
         if (_isWalking && !_walkingAnimPlaying)
         {
@@ -247,6 +320,19 @@ public class PlayerController : MonoBehaviour
             //_playerCamera.GetComponent<Animator>().ResetTrigger("ShakeCameraTrigger");
             StopCoroutine("PlayerWalkingAnim");
             StopCoroutine(WalkSound());
+        }
+
+        if (Input.GetKey("c"))
+        {
+            if (!isCrouching && canCrouch)
+            {
+                StartCoroutine(Crouch());
+            }
+            else if (canCrouch)
+            {
+                StartCoroutine(UnCrouch());
+            }
+
         }
     }
 
@@ -331,7 +417,8 @@ public class PlayerController : MonoBehaviour
     private IEnumerator PlayerIsMoving()
     {
         Vector3 oldPos = transform.position;
-        yield return null;
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
         Vector3 newPos = transform.position;
         if ((int)oldPos.x != (int)newPos.x || (int)oldPos.z != (int)newPos.z)
         {
@@ -435,7 +522,7 @@ public class PlayerController : MonoBehaviour
         {
             //movementSpeed = movementSpeed * _sprintMultiplier;
             //movementSpeed += _baseSpeed;
-            maxSpeed += 2;
+            maxSpeed += 3;
             isSprinting = true;
             if (_sprintBar.canSprint)
             {
@@ -464,7 +551,7 @@ public class PlayerController : MonoBehaviour
         {
             //movementSpeed = movementSpeed / _sprintMultiplier;
             //movementSpeed -= _baseSpeed;
-            maxSpeed -= 2;
+            maxSpeed -= 3;
             isSprinting = false;
             _sprintBar._isSprinting = false;
             //if (_sprintBar.canSprint) 

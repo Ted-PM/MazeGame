@@ -16,9 +16,28 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     private PlayerController _playerController;
 
+    private int _selectedSlot;
     private void Awake()
     {
         instance = this;
+        _selectedSlot = 0;
+    }
+
+    public void SelectNextSlot()
+    {
+        _inventorySlots[_selectedSlot].DeSelectSlot();
+        _selectedSlot++;
+        _selectedSlot = _selectedSlot % 4;
+        _inventorySlots[_selectedSlot].SelectSlot();
+    }
+
+    public void SelectPrevSlot()
+    {
+        _inventorySlots[_selectedSlot].DeSelectSlot();
+        _selectedSlot--;
+        if (_selectedSlot <= -1) { _selectedSlot = 3; }
+        //_selectedSlot = _selectedSlot % 4;
+        _inventorySlots[_selectedSlot].SelectSlot();
     }
 
     public void SelectSlot(int _slotNumber)
