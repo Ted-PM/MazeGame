@@ -3298,8 +3298,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b74ddb507d1e22c4a8673ef19fa32a8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 5
-  jumpForce: 200
+  movementSpeed: 750
+  maxSpeed: 5
+  jumpForce: 400
   playerCamera: {fileID: 963194228}
   lookSpeed: 5
   lookXLimit: 45
@@ -3320,7 +3321,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1447352209}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 70
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

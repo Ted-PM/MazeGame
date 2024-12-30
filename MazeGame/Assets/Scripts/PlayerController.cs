@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     public float movementSpeed;
     private float _baseSpeed;
+    public float maxSpeed;
     public float jumpForce;
     private float _baseJump;
 
@@ -82,6 +84,15 @@ public class PlayerController : MonoBehaviour
         lookAtMouse();
         PlayerItemSelector();
 
+        if (FindObjectOfType<BigMazeGenerator>() != null)
+        {
+            WallController();
+        }
+        //Debug.Log(sprintRatio);
+    }
+
+    private void FixedUpdate()
+    {
         if (!rb.isKinematic)
         {
             Mover();
@@ -90,11 +101,7 @@ public class PlayerController : MonoBehaviour
         {
             StopSprinting();
         }
-        if (FindObjectOfType<BigMazeGenerator>() != null)
-        {
-            WallController();
-        }
-        //Debug.Log(sprintRatio);
+        Debug.Log("Velocity: " + rb.velocity.magnitude);
     }
 
     void PlayerItemSelector()
@@ -130,28 +137,74 @@ public class PlayerController : MonoBehaviour
         //    var directionFromPlayer = transform.localEulerAngles;
         //    //hitCollider.SendMessage("AddDamage");
         //}
+        /*
+         * _rb.AddForce(
+         * 
+         */
 
-        if (Input.GetKey("w"))
+        //if (Input.GetKey("w"))
+        //{
+        //    transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
+        //}
+        //if (Input.GetKey("s"))
+        //{
+        //    transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
+        //}
+        //if (Input.GetKey("a"))
+        //{
+        //    transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
+        //}
+        //if (Input.GetKey("d"))
+        //{
+        //    transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
+        //}
+        if (Input.GetKey("w") && canJump)
         {
-            transform.Translate(Vector3.forward * Time.deltaTime * movementSpeed); //move forward
+            rb.AddRelativeForce(Vector3.forward * movementSpeed, ForceMode.Force);
         }
-        if (Input.GetKey("s"))
+        else if (rb.velocity.magnitude > 0f)
         {
-            transform.Translate(Vector3.back * Time.deltaTime * movementSpeed); //move backwards
+            rb.AddRelativeForce(Vector3.forward * (-movementSpeed*10), ForceMode.Force);
         }
-        if (Input.GetKey("a"))
+        if (Input.GetKey("s") && canJump)
         {
-            transform.Translate(Vector3.left * Time.deltaTime * movementSpeed); //move left
+            rb.AddRelativeForce(Vector3.back * movementSpeed, ForceMode.Force);
         }
-        if (Input.GetKey("d"))
+        else if (rb.velocity.magnitude > 0f)
         {
-            transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
+            rb.AddRelativeForce(Vector3.back * (-movementSpeed * 10), ForceMode.Force);
+        }
+        if (Input.GetKey("a") && canJump)
+        {
+            rb.AddRelativeForce(Vector3.left * movementSpeed, ForceMode.Force);
+        }
+        else if (rb.velocity.magnitude > 0f)
+        {
+            rb.AddRelativeForce(Vector3.left * (-movementSpeed * 10), ForceMode.Force);
+        }
+        if (Input.GetKey("d") && canJump)
+        {
+            rb.AddRelativeForce(Vector3.right * movementSpeed, ForceMode.Force);
+        }
+        else if (rb.velocity.magnitude > 0f)
+        {
+            rb.AddRelativeForce(Vector3.right * (-movementSpeed * 10), ForceMode.Force);
+        }
+
+        if (rb.velocity.magnitude > maxSpeed && canJump)
+        {
+            rb.velocity = rb.velocity.normalized * maxSpeed;
+        }
+        else if (rb.velocity.magnitude < 0f)
+        {
+            rb.velocity = rb.velocity.normalized * 0f;
         }
 
         if (Input.GetKey(KeyCode.Space) && canJump)
         {
             canJump = false;
-            rb.AddForce(transform.up * jumpForce);
+            //rb.AddForce(transform.up * jumpForce);
+            rb.AddRelativeForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
         if (Input.GetKeyDown("q"))
@@ -162,7 +215,7 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        if (Input.GetKeyDown("left shift") && _sprintBar.canSprint  && !isSprinting)
+        if (Input.GetKey("left shift") && _sprintBar.canSprint  && !isSprinting)
         {
             //StopCoroutine("PlayerWalkingAnim");
             //StartCoroutine(PlayerWalkingAnim(0.2f, 3f));
@@ -381,7 +434,8 @@ public class PlayerController : MonoBehaviour
         if (!isSprinting)
         {
             //movementSpeed = movementSpeed * _sprintMultiplier;
-            movementSpeed += _baseSpeed;
+            //movementSpeed += _baseSpeed;
+            maxSpeed += 2;
             isSprinting = true;
             if (_sprintBar.canSprint)
             {
@@ -409,7 +463,8 @@ public class PlayerController : MonoBehaviour
         if (isSprinting)
         {
             //movementSpeed = movementSpeed / _sprintMultiplier;
-            movementSpeed -= _baseSpeed;
+            //movementSpeed -= _baseSpeed;
+            maxSpeed -= 2;
             isSprinting = false;
             _sprintBar._isSprinting = false;
             //if (_sprintBar.canSprint) 
@@ -512,11 +567,13 @@ public class PlayerController : MonoBehaviour
     private IEnumerator IncreaseBaseSpeed()
     {
         speedItemUsed = true;
-        movementSpeed += 2;
+        maxSpeed += 2;
+        //movementSpeed += 2;
         float currentSpeed = movementSpeed;
         Debug.Log("item 0 used, new speed = " + movementSpeed);
         yield return new WaitForSeconds(5);
-        movementSpeed -= 2;
+        //movementSpeed -= 2;
+        maxSpeed -= 2;
         speedItemUsed = false;
         Debug.Log("item 0 used, final speed = " + movementSpeed);
     }
