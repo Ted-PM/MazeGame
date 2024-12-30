@@ -130,4 +130,6 @@ public class Inventory : MonoBehaviour
 
         return result;
     }
+
+    public int GetNumberOfItems() { return _itemList.Count; }
 }

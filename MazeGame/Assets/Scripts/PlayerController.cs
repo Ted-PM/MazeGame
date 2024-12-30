@@ -54,6 +54,8 @@ public class PlayerController : MonoBehaviour
     public static bool playerInvisible;
     [HideInInspector]
     public bool speedItemUsed;
+    [HideInInspector]
+    public bool sneakItemUsed;
 
     [HideInInspector]
     public bool isCrouching;
@@ -86,6 +88,7 @@ public class PlayerController : MonoBehaviour
         _baseJump = jumpForce;
         isCrouching = false;
         canCrouch = true;
+        sneakItemUsed = false;
         //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
@@ -307,7 +310,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(PlayerWalkingAnim());
         }
         
-        if (_isWalking && !_stepSoundPlaying)
+        if (_isWalking && !_stepSoundPlaying && !sneakItemUsed)
         {
             //StopCoroutine("PlayerWalkingAnim");
             //StartCoroutine(PlayerWalkingAnim());
@@ -438,80 +441,92 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WalkSound()
     {
-        if (canJump && _isWalking && isSprinting && !isCrouching)
+        if (!sneakItemUsed)
         {
-            var leftStep = _step;
-            var rightStep = _step;
-            leftStep.volume = 2f;
-            rightStep.volume = 2f;
-            _stepSoundPlaying = true;
-            if (!_step.isPlaying)
+            if (canJump && _isWalking && isSprinting && !isCrouching)
             {
-                yield return new WaitForSeconds((0.4f)/3f);
-                leftStep.Play();
-                yield return new WaitForSeconds((0.4f)/2f);
-                rightStep.Play();
-                //_step.Play();
+                var leftStep = _step;
+                var rightStep = _step;
+                leftStep.volume = 2f;
+                rightStep.volume = 2f;
+                _stepSoundPlaying = true;
+                if (!_step.isPlaying)
+                {
+                    yield return new WaitForSeconds((0.4f) / 3f);
+                    leftStep.Play();
+                    yield return new WaitForSeconds((0.4f) / 2f);
+                    rightStep.Play();
+                    //_step.Play();
+                }
+                yield return new WaitForSeconds((0.4f) / 6f);
+                //_step.Stop();
+                leftStep.Stop();
+                rightStep.Stop();
+                _stepSoundPlaying = false;
+                //if (!_step.isPlaying)
+                //{
+                StartCoroutine(WalkSound());
+                //}
             }
-            yield return new WaitForSeconds((0.4f) / 6f);
-            //_step.Stop();
-            leftStep.Stop();
-            rightStep.Stop();
-            _stepSoundPlaying = false;
-            //if (!_step.isPlaying)
+            //else if (canJump && _isWalking && isCrouching)
             //{
-            StartCoroutine(WalkSound());
+            //    var leftStep = _step;
+            //    var rightStep = _step;
+            //    leftStep.volume = 0.5f;
+            //    rightStep.volume = 0.5f;
+            //    _stepSoundPlaying = true;
+            //    if (!_step.isPlaying)
+            //    {
+            //        yield return new WaitForSeconds((0.8f) / 3f);
+            //        leftStep.Play();
+            //        yield return new WaitForSeconds((0.8f) / 2f);
+            //        rightStep.Play();
+            //        //_step.Play();
+            //    }
+            //    yield return new WaitForSeconds((0.8f) / 6f);
+            //    //_step.Stop();
+            //    leftStep.Stop();
+            //    rightStep.Stop();
+            //    _stepSoundPlaying = false;
+            //    //if (!_step.isPlaying)
+            //    //{
+            //    StartCoroutine(WalkSound());
+            //    //}
             //}
-        }
-        else if (canJump && _isWalking && isCrouching)
-        {
-            var leftStep = _step;
-            var rightStep = _step;
-            leftStep.volume = 0.5f;
-            rightStep.volume = 0.5f;
-            _stepSoundPlaying = true;
-            if (!_step.isPlaying)
+            else if (canJump && _isWalking)
             {
-                yield return new WaitForSeconds((0.8f) / 3f);
-                leftStep.Play();
-                yield return new WaitForSeconds((0.8f) / 2f);
-                rightStep.Play();
-                //_step.Play();
+                var leftStep = _step;
+                var rightStep = _step;
+                leftStep.volume = 1f;
+                rightStep.volume = 1f;
+                if (isCrouching)
+                {
+                    leftStep.volume = 0.5f;
+                    rightStep.volume = 0.5f;
+                }
+                _stepSoundPlaying = true;
+                if (!_step.isPlaying)
+                {
+                    yield return new WaitForSeconds((0.6f) / 3f);
+                    leftStep.Play();
+                    yield return new WaitForSeconds((0.6f) / 2f);
+                    rightStep.Play();
+                    //_step.Play();
+                }
+                yield return new WaitForSeconds((0.6f) / 6f);
+                leftStep.Stop();
+                rightStep.Stop();
+                //_step.Stop();
+                _stepSoundPlaying = false;
+                //if (!_step.isPlaying)
+                //{
+                StartCoroutine(WalkSound());
+                //}
             }
-            yield return new WaitForSeconds((0.8f) / 6f);
-            //_step.Stop();
-            leftStep.Stop();
-            rightStep.Stop();
-            _stepSoundPlaying = false;
-            //if (!_step.isPlaying)
-            //{
-            StartCoroutine(WalkSound());
-            //}
-        }
-        else if (canJump && _isWalking)
-        {
-            var leftStep = _step; 
-            var rightStep = _step;
-            leftStep.volume = 1f;
-            rightStep.volume = 1f;
-            _stepSoundPlaying = true;
-            if (!_step.isPlaying)
+            else
             {
-                yield return new WaitForSeconds((0.6f)/3f);
-                leftStep.Play();
-                yield return new WaitForSeconds((0.6f) / 2f);
-                rightStep.Play();
-                //_step.Play();
+                _stepSoundPlaying = false;
             }
-            yield return new WaitForSeconds((0.6f) / 6f);
-            leftStep.Stop();
-            rightStep.Stop();
-            //_step.Stop();
-            _stepSoundPlaying = false;
-            //if (!_step.isPlaying)
-            //{
-            StartCoroutine(WalkSound());
-            //}
         }
         else
         {
@@ -655,26 +670,55 @@ public class PlayerController : MonoBehaviour
         switch (itemID)
         {
             case 0:
-                Debug.Log("item 0 used");
+                Debug.Log("item 0 used, INCREASE SPEED");
                 StartCoroutine(WaitForPlayerBaseSpeed());
                 //StartCoroutine(IncreaseBaseSpeed());
                 break;
             case 1:
-                Debug.Log("item 1 used");
+                Debug.Log("item 1 used, PLAYER INVISIBLE");
                 StartCoroutine(WaitForPlayerVisible());
                 break;
             case 2:
-                Debug.Log("item 2 used");
+                Debug.Log("item 2 used, REFILL SPRINT");
                 RefillSprint();
                 break;
             case 3:
-                Debug.Log("item 3 used");
+                Debug.Log("item 3 used, REFILL WALLS BAR");
                 StartCoroutine(RefillWalls());
+                break;
+            case 4:
+                Debug.Log("item 4 used, SNEAK");
+                StartCoroutine(WaitForNotSneaking());
+                break;
+            case 5:
+                Debug.Log("item 5 used, RANDOM EFFECT");
+                GetRandomItem();
                 break;
             default:
                 Debug.LogWarning("That item doesn't have a characteristic attached to it");
                 break;
         }
+    }
+
+    private void GetRandomItem()
+    {
+        int itemID = Random.Range(0, Inventory.instance.GetNumberOfItems());
+        Inventory.instance.PickUpItem(itemID);
+    }
+    private IEnumerator WaitForNotSneaking()
+    {
+        while (sneakItemUsed)
+        {
+            yield return null;
+        }
+        StartCoroutine(StartSneaking());
+    }
+
+    private IEnumerator StartSneaking()
+    {
+        sneakItemUsed = true;
+        yield return new WaitForSeconds(5);
+        sneakItemUsed = false;
     }
 
     private IEnumerator WaitForPlayerBaseSpeed()
