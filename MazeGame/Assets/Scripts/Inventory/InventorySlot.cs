@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 //using UnityEngine.UIElements;
 using UnityEngine.UI;
+//using static UnityEditor.Progress;
 //using UnityEngine.ProBuilder.Shapes;
 
 public class InventorySlot : MonoBehaviour
@@ -19,6 +20,7 @@ public class InventorySlot : MonoBehaviour
     public bool isSelected;
     private Vector3 _defaultScale;
     private Vector3 _largerScale;
+    //private IEnumerator _itemNameCoroutine;
 
     private void Awake()
     {
@@ -63,6 +65,9 @@ public class InventorySlot : MonoBehaviour
             isSelected = true;
             _slotBG.transform.localScale = _largerScale;
             _renderer.transform.localScale += new Vector3(2.5f, 2.5f, 0);
+            Inventory.instance.DisplayItemName(currentItemID);
+            //_itemNameCoroutine = Inventory.instance.DisplayItemName(currentItemID);
+            //StartCoroutine(_itemNameCoroutine);
         }
     }
     public void DeSelectSlot()
@@ -72,7 +77,8 @@ public class InventorySlot : MonoBehaviour
             isSelected = false;
             _slotBG.transform.localScale = _defaultScale;
             _renderer.transform.localScale -= new Vector3(2.5f, 2.5f, 0);
-
+            //StopCoroutine(Inventory.instance.DisplayItemName(currentItemID));
+            //StopCoroutine( _itemNameCoroutine );
         }
     }
 }

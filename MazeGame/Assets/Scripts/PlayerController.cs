@@ -325,17 +325,22 @@ public class PlayerController : MonoBehaviour
             StopCoroutine(WalkSound());
         }
 
-        if (Input.GetKey("c"))
+        if (!isCrouching && canCrouch && Input.GetKey("c"))
         {
-            if (!isCrouching && canCrouch)
-            {
+            //if (!isCrouching && canCrouch)
+            //{
+            //}
                 StartCoroutine(Crouch());
-            }
-            else if (canCrouch)
-            {
-                StartCoroutine(UnCrouch());
-            }
+            //else if (canCrouch)
+            //{
+            //    StartCoroutine(UnCrouch());
+            //}
+        }
+        else if (isCrouching && !Input.GetKey("c") && canCrouch)
+        {
 
+                StartCoroutine(UnCrouch());
+            
         }
     }
 

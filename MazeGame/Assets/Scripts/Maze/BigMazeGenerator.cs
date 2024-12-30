@@ -317,7 +317,7 @@ public class BigMazeGenerator : MonoBehaviour
             ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
 
-        if (TrueForXFalse(2))
+        if (TrueForXFalse(5))
         {
             ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
@@ -937,7 +937,7 @@ public class BigMazeGenerator : MonoBehaviour
         bool result = false;
 
         // cells start at 0, so check if not too far left
-        if (x - 1 >= 0 && _mazeGrid[x,z].GetLeftWallStatus())
+        if (x - 1 >= 0 && _mazeGrid[x,z].GetLeftWallStatus() && _mazeGrid[x-1, z].GetRightWallStatus())
         {
             result = true;
             //Debug.Log("left true, x: " + (x-1) + ",z " + z);
@@ -951,7 +951,7 @@ public class BigMazeGenerator : MonoBehaviour
         bool result = false;
 
         //right
-        if (x + 1 < _mazeWidth && _mazeGrid[x, z].GetRightWallStatus())
+        if (x + 1 < _mazeWidth && _mazeGrid[x, z].GetRightWallStatus() && _mazeGrid[x + 1, z].GetLeftWallStatus())
         {
             result = true;
             //Debug.Log("Right true, x: " + (x + 1) + ",z " + z);
@@ -965,7 +965,7 @@ public class BigMazeGenerator : MonoBehaviour
         bool result = false;
 
         //right
-        if (z + 1 < _mazeDepth && _mazeGrid[x, z].GetFrontWallStatus())
+        if (z + 1 < _mazeDepth && _mazeGrid[x, z].GetFrontWallStatus() && _mazeGrid[x, z+1].GetBackWallStatus())
         {
             //Debug.Log("front true, x: " + (x) + ",z " + (z+1));
             result = true;
@@ -978,7 +978,7 @@ public class BigMazeGenerator : MonoBehaviour
         bool result = false;
 
         //right
-        if (z - 1 >= 0 && _mazeGrid[x, z].GetBackWallStatus())
+        if (z - 1 >= 0 && _mazeGrid[x, z].GetBackWallStatus() && _mazeGrid[x, z - 1].GetFrontWallStatus())
         {
             result = true;
             //Debug.Log("back true, x: " + (x) + ",z " + (z-1));

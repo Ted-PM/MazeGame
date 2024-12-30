@@ -6,6 +6,7 @@ public class InteractableItemScript : MonoBehaviour
 {
 
     public int _itemID;
+    public string itemName;
     //public string _itemName { get; private set; }
 
     private void OnCollisionEnter(Collision collision)

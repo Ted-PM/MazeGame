@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using static UnityEditor.Progress;
+//using static UnityEditor.Progress;
 
 public class Inventory : MonoBehaviour
 {
@@ -16,11 +17,15 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     private PlayerController _playerController;
 
+    [SerializeField]
+    private TextMeshProUGUI _slotContents;
+
     private int _selectedSlot;
     private void Awake()
     {
         instance = this;
         _selectedSlot = 0;
+        _slotContents.enabled = false;
     }
 
     public void SelectNextSlot()
@@ -38,6 +43,25 @@ public class Inventory : MonoBehaviour
         if (_selectedSlot <= -1) { _selectedSlot = 3; }
         //_selectedSlot = _selectedSlot % 4;
         _inventorySlots[_selectedSlot].SelectSlot();
+    }
+
+    public void DisplayItemName(int itemID)
+    {
+        StopCoroutine("_DisplayItemName");
+        _slotContents.enabled = false;
+        StartCoroutine(_DisplayItemName(itemID));
+    }
+    private IEnumerator _DisplayItemName(int itemID)
+    {
+        //yield return new WaitForSeconds(0.1f);
+        yield return new WaitForFixedUpdate();
+        if (itemID != -1)
+        {
+            _slotContents.GetComponent<TMPro.TextMeshProUGUI>().text = _itemList[itemID].itemName.ToString();
+            _slotContents.enabled = true;
+            yield return new WaitForSeconds(1f);
+        }
+        _slotContents.enabled = false;
     }
 
     public void SelectSlot(int _slotNumber)

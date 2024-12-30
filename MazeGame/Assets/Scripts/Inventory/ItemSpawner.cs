@@ -28,7 +28,7 @@ public class ItemSpawner : MonoBehaviour
         float zPos = (float)(Random.Range(-40, 40) / 10);
         float randomRotation = (float)(Random.Range(0, 360));
 
-        var newItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.5f, 10 * z + zPos), Quaternion.identity);
+        var newItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity);
         //newItem.tag = "Floor";
         newItem.transform.eulerAngles = new Vector3(0f, randomRotation, 0f);
     }
