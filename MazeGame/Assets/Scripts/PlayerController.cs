@@ -350,6 +350,11 @@ public class PlayerController : MonoBehaviour
                 time = 0.395f;
                 speed = 1.5f;
             }
+            else if (isCrouching)
+            {
+                time = 0.795f;
+                speed = .75f;
+            }
             else
             {
                 time = 0.595f;
@@ -433,10 +438,12 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WalkSound()
     {
-        if (canJump && _isWalking && isSprinting)
+        if (canJump && _isWalking && isSprinting && !isCrouching)
         {
             var leftStep = _step;
             var rightStep = _step;
+            leftStep.volume = 2f;
+            rightStep.volume = 2f;
             _stepSoundPlaying = true;
             if (!_step.isPlaying)
             {
@@ -456,10 +463,37 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(WalkSound());
             //}
         }
+        else if (canJump && _isWalking && isCrouching)
+        {
+            var leftStep = _step;
+            var rightStep = _step;
+            leftStep.volume = 0.5f;
+            rightStep.volume = 0.5f;
+            _stepSoundPlaying = true;
+            if (!_step.isPlaying)
+            {
+                yield return new WaitForSeconds((0.8f) / 3f);
+                leftStep.Play();
+                yield return new WaitForSeconds((0.8f) / 2f);
+                rightStep.Play();
+                //_step.Play();
+            }
+            yield return new WaitForSeconds((0.8f) / 6f);
+            //_step.Stop();
+            leftStep.Stop();
+            rightStep.Stop();
+            _stepSoundPlaying = false;
+            //if (!_step.isPlaying)
+            //{
+            StartCoroutine(WalkSound());
+            //}
+        }
         else if (canJump && _isWalking)
         {
             var leftStep = _step; 
-            var rightStep = _step;  
+            var rightStep = _step;
+            leftStep.volume = 1f;
+            rightStep.volume = 1f;
             _stepSoundPlaying = true;
             if (!_step.isPlaying)
             {
