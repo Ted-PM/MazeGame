@@ -2602,7 +2602,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40d00d365be4b3649970d720e3060c25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mazeCellPrefab: {fileID: 5943907839882638597, guid: 4d120f3b13a5a9b49a8dd84df3d816a5, type: 3}
+  _mazeCellPrefab: {fileID: 5943907839882638597, guid: 2cb735066e2c31a49a6400ceb197a8af, type: 3}
   _enemyControllerPrefab: {fileID: 1129351329254573856, guid: 305e90fb986ef364cb28129e681a4296, type: 3}
   _mazeWidth: 15
   _mazeDepth: 20

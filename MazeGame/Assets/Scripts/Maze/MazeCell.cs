@@ -8,37 +8,62 @@ public class MazeCell : MonoBehaviour
 {
     [SerializeField]
     private GameObject _leftWall;
+    [HideInInspector]
     public bool _leftVisited { get; private set; }
 
     [SerializeField]
     private GameObject _leftDoor;
+    [HideInInspector]
     public bool _leftDoorAdded { get; private set; }
 
     [SerializeField]
+    private GameObject _leftCrouchWall;
+    [HideInInspector]
+    public bool _leftCrouchWallAdded { get; private set; }
+
+    [SerializeField]
     private GameObject _rightWall;
+    [HideInInspector]
     public bool _rightVisited { get; private set; }
 
     [SerializeField]
     private GameObject _rightDoor;
+    [HideInInspector]
     public bool _rightDoorAdded { get; private set; }
+    [SerializeField]
+    private GameObject _rightCrouchWall;
+    [HideInInspector]
+    public bool _rightCrouchWallAdded { get; private set; }
 
 
     [SerializeField]
     private GameObject _frontWall;
+    [HideInInspector]
     public bool _frontVisited { get; private set; }
 
     [SerializeField]
     private GameObject _frontDoor;
+    [HideInInspector]
     public bool _frontDoorAdded { get; private set; }
+    [SerializeField]
+    private GameObject _frontCrouchWall;
+    [HideInInspector]
+    public bool _frontCrouchWallAdded { get; private set; }
 
 
     [SerializeField]
     private GameObject _backWall;
+    [HideInInspector]
     public bool _backsVisited { get; private set; }
 
     [SerializeField]
     private GameObject _backDoor;
+    [HideInInspector]
     public bool _backDoorAdded { get; private set; }
+    [SerializeField]
+    private GameObject _backCrouchWall;
+    [HideInInspector]
+    public bool _backCrouchWallAdded { get; private set; }
 
 
     //[SerializeField]
@@ -88,6 +113,14 @@ public class MazeCell : MonoBehaviour
         _backDoor.SetActive(false);
     }
 
+    private void DisableAllCrouchWalls()
+    {
+        _leftCrouchWall.SetActive(false);
+        _rightCrouchWall.SetActive(false);
+        _frontCrouchWall.SetActive(false);
+        _backCrouchWall.SetActive(false);
+    }
+
     public void EnablePathToEnd()
     {
         //yield return new WaitForSeconds(0.05f);
@@ -119,6 +152,7 @@ public class MazeCell : MonoBehaviour
     {
         isVisited = true;
         DisableDoors();
+        DisableAllCrouchWalls();
         //_unvisitedBlock.SetActive(false);
     }
 
@@ -207,6 +241,12 @@ public class MazeCell : MonoBehaviour
         _leftDoor.SetActive(true);
     }
 
+    public void AddLeftCrouchWall()
+    {
+        _leftCrouchWallAdded = true;
+        _leftCrouchWall.SetActive(true);
+    }
+
     public void ClearRightWall()
     {
         _rightVisited = true;
@@ -220,6 +260,12 @@ public class MazeCell : MonoBehaviour
     {
         _rightDoorAdded = true;
         _rightDoor.SetActive(true);
+    }
+
+    public void AddRightCrouchWall()
+    {
+        _rightCrouchWallAdded = true;
+        _rightCrouchWall.SetActive(true);
     }
 
     public void ClearFrontWall()
@@ -237,6 +283,12 @@ public class MazeCell : MonoBehaviour
         _frontDoor.SetActive(true);
     }
 
+    public void AddFrontCrouchWall()
+    {
+        _frontCrouchWallAdded = true;
+        _frontCrouchWall.SetActive(true);
+    }
+
     public void ClearBackWall()
     {
         _backsVisited = true;
@@ -252,6 +304,31 @@ public class MazeCell : MonoBehaviour
         _backDoor.SetActive(true);
     }
 
+    public void AddBackCrouchWall()
+    {
+        _backCrouchWallAdded = true;
+        _backCrouchWall.SetActive(true);
+    }
+
+    public void DestroyUnactiveCrouchWalls()
+    {
+        if (!_leftCrouchWallAdded)
+        {
+            Destroy(_leftCrouchWall);
+        }
+        if (!_rightCrouchWallAdded)
+        {
+            Destroy(_rightCrouchWall);
+        }
+        if (!_frontCrouchWallAdded)
+        {
+            Destroy(_frontCrouchWall);
+        }
+        if (!_backCrouchWallAdded)
+        {
+            Destroy(_backCrouchWall);
+        }
+    }
     public void DestroyUnactiveDoors()
     {
         if (!_leftDoorAdded)
@@ -286,6 +363,11 @@ public class MazeCell : MonoBehaviour
             _leftDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_leftDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _leftDoor.GetComponentInChildren<MeshCollider>()));
         }
+        else if (_leftCrouchWallAdded == true)
+        {
+            _leftCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_leftCrouchWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _leftCrouchWall.GetComponentInChildren<MeshCollider>()));
+        }
         //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
         if (_rightVisited == false)// && transform.position.x < (mazeWidth*10) - 10)
         {
@@ -298,6 +380,11 @@ public class MazeCell : MonoBehaviour
         {
             _rightDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_rightDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _rightDoor.GetComponentInChildren<MeshCollider>()));
+        }
+        else if (_rightCrouchWallAdded == true)
+        {
+            _rightCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_rightCrouchWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _rightCrouchWall.GetComponentInChildren<MeshCollider>()));
         }
         //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
         if (_frontVisited == false)// && transform.position.z < (mazeDepth*10) - 10)
@@ -312,6 +399,11 @@ public class MazeCell : MonoBehaviour
             _frontDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_frontDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _frontDoor.GetComponentInChildren<MeshCollider>()));
         }
+        else if (_frontCrouchWallAdded == true)
+        {
+            _frontCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_frontCrouchWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _frontCrouchWall.GetComponentInChildren<MeshCollider>()));
+        }
         if (_backsVisited == false)// && transform.position.z > 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
@@ -323,6 +415,11 @@ public class MazeCell : MonoBehaviour
         {
             _backDoor.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
             StartCoroutine(_backDoor.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _backDoor.GetComponentInChildren<MeshCollider>()));
+        }
+        else if (_backCrouchWallAdded == true)
+        {
+            _backCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("RaiseWall");
+            StartCoroutine(_backCrouchWall.GetComponentInChildren<MazeWall>().LowerWall(lowerTime, _backCrouchWall.GetComponentInChildren<MeshCollider>()));
         }
 
         if (_backLeftCorner.activeSelf)
@@ -380,6 +477,11 @@ public class MazeCell : MonoBehaviour
             _leftDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_leftDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _leftDoor.GetComponentInChildren<MeshCollider>()));
         }
+        else if (_leftCrouchWallAdded == true)
+        {
+            _leftCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_leftCrouchWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _leftCrouchWall.GetComponentInChildren<MeshCollider>()));
+        }
         //if (_rightVisited == false && transform.position.x < mazeWidth - 1)
         if (_rightVisited == false)// && transform.position.x < mazeWidth * 10 - 1)
         {
@@ -392,6 +494,11 @@ public class MazeCell : MonoBehaviour
         {
             _rightDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_rightDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _rightDoor.GetComponentInChildren<MeshCollider>()));
+        }
+        else if (_rightCrouchWallAdded == true)
+        {
+            _rightCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_rightCrouchWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _rightCrouchWall.GetComponentInChildren<MeshCollider>()));
         }
         //if (_frontVisited == false && transform.position.z < mazeDepth - 1)
         if (_frontVisited == false)// && transform.position.z < mazeDepth* 10 - 1)
@@ -406,6 +513,11 @@ public class MazeCell : MonoBehaviour
             _frontDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_frontDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _frontDoor.GetComponentInChildren<MeshCollider>()));
         }
+        else if (_frontCrouchWallAdded == true)
+        {
+            _frontCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_frontCrouchWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _frontCrouchWall.GetComponentInChildren<MeshCollider>()));
+        }
         if (_backsVisited == false)// && transform.position.z > 0)
         {
             _backWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
@@ -417,6 +529,11 @@ public class MazeCell : MonoBehaviour
         {
             _backDoor.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
             StartCoroutine(_backDoor.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _backDoor.GetComponentInChildren<MeshCollider>()));
+        }
+        else if (_backCrouchWallAdded == true)
+        {
+            _backCrouchWall.GetComponentInChildren<MazeWall>().StopCoroutine("LowerWall");
+            StartCoroutine(_backCrouchWall.GetComponentInChildren<MazeWall>().RaiseWall(raiseTime, _backCrouchWall.GetComponentInChildren<MeshCollider>()));
         }
 
         if (_backLeftCorner.activeSelf)

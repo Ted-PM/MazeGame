@@ -207,6 +207,35 @@ public class BigMazeGenerator : MonoBehaviour
                 {
                     _mazeGrid[i, j].ClearFrontWall();
                 }
+                // check if add crouch wall
+                if (TrueForXFalse(10))
+                {
+                    Debug.Log("adding crouchwall");
+                    // add to front (z-axis, depth)
+                    if (TrueFalse() && _mazeGrid[i, j].GetFrontWallStatus() && !_mazeGrid[i, j]._frontDoorAdded && !_mazeGrid[i, j+1]._backDoorAdded)
+                    {
+                        Debug.Log("front true");
+                        if (j+1 < _mazeDepth-1)
+                        {
+                            _mazeGrid[i, j + 1].ClearBackWall();
+                            _mazeGrid[i,j].AddFrontCrouchWall();
+                            Debug.Log("front added");
+                        }
+                    }
+                    // add to right (x-axis, width)
+                    else if (_mazeGrid[i, j].GetRightWallStatus() && !_mazeGrid[i, j]._rightDoorAdded && !_mazeGrid[i + 1, j]._leftDoorAdded)
+                    {
+                        Debug.Log("right true");
+                        if (i + 1 < _mazeWidth - 1)
+                        {
+                            _mazeGrid[i + 1, j].ClearLeftWall();
+                            _mazeGrid[i, j].AddRightCrouchWall();
+                            Debug.Log("right added");
+                        }
+                    }
+                }
+
+                _mazeGrid[i, j].DestroyUnactiveCrouchWalls();
             }
         }
         //DestroyUnactiveDoors()
