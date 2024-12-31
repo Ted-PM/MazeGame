@@ -64,6 +64,9 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public bool canCrouch;
 
+    private AudioSource leftStep;// = _step;
+    private AudioSource rightStep;// = _step;
+
     //private IEnumerator _sprintCoroutine;
     //private IEnumerator _stopSprintCoroutine;
 
@@ -84,11 +87,12 @@ public class PlayerController : MonoBehaviour
         isSprinting = false;
         _stepSoundPlaying = false;
         _isWalking = false;
-        _baseSpeed = movementSpeed;
+        _baseSpeed = maxSpeed;
         _baseJump = jumpForce;
         isCrouching = false;
         canCrouch = true;
         sneakItemUsed = false;
+        leftStep = rightStep = _step;
         //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
@@ -231,6 +235,14 @@ public class PlayerController : MonoBehaviour
         //{
         //    transform.Translate(Vector3.right * Time.deltaTime * movementSpeed); //move right
         //}
+        //if (!canJump && maxSpeed != (_baseSpeed + 2))
+        //{
+        //    maxSpeed += 2;
+        //}
+        //else if (canJump && maxSpeed != _baseSpeed)
+        //{
+        //    maxSpeed = _baseSpeed;
+        //}
         if (Input.GetKey("w") && canJump)
         {
             rb.AddRelativeForce(Vector3.forward * movementSpeed, ForceMode.Force);
@@ -268,12 +280,19 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
-        else if (rb.velocity.magnitude < 0f)
+        else if (rb.velocity.magnitude < 2f)
         {
             rb.velocity = rb.velocity.normalized * 0f;
         }
 
-        if (Input.GetKey(KeyCode.Space) && canJump)
+        if (canJump && !Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
+        {
+            rb.velocity = rb.velocity.normalized * 0f;
+            StopCoroutine(PlayerWalkingAnim());
+            StopCoroutine(WalkSound());
+        }
+
+        if (Input.GetKey(KeyCode.Space) && canJump && !isCrouching)
         {
             canJump = false;
             //rb.AddForce(transform.up * jumpForce);
@@ -289,7 +308,8 @@ public class PlayerController : MonoBehaviour
 
 
 
-        StartCoroutine(PlayerIsMoving());
+        //StartCoroutine(PlayerIsMoving());
+        IsPlayerMoving();
 
 
         if (Input.GetKey("left shift") && _sprintBar.canSprint && !isSprinting && rb.velocity.magnitude > 0.1f && !isCrouching)
@@ -310,7 +330,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(PlayerWalkingAnim());
         }
         
-        if (_isWalking && !_stepSoundPlaying && !sneakItemUsed)
+        if (_isWalking && !_stepSoundPlaying && !sneakItemUsed && canJump)
         {
             //StopCoroutine("PlayerWalkingAnim");
             //StartCoroutine(PlayerWalkingAnim());
@@ -427,101 +447,71 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private IEnumerator PlayerIsMoving()
+    private void IsPlayerMoving()
     {
-        Vector3 oldPos = transform.position;
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        Vector3 newPos = transform.position;
-        if ((int)oldPos.x != (int)newPos.x || (int)oldPos.z != (int)newPos.z)
+        if (rb.velocity.magnitude >= 3f)
         {
             _isWalking = true;
         }
         else
         {
-            _isWalking =  false;
-            StopCoroutine(WalkSound());
+            _isWalking = false;
+            //StopCoroutine(WalkSound());
+            //StopCoroutine(PlayerWalkingAnim());
+            //StopSprinting();
         }
     }
 
+    //private IEnumerator PlayerIsMoving()
+    //{
+
+
+    //    //-----
+    //    Vector3 oldPos = transform.position;
+    //    yield return new WaitForFixedUpdate();
+    //    yield return new WaitForFixedUpdate();
+    //    Vector3 newPos = transform.position;
+    //    if ((int)oldPos.x != (int)newPos.x || (int)oldPos.z != (int)newPos.z)
+    //    {
+    //        _isWalking = true;
+    //    }
+    //    else
+    //    {
+    //        _isWalking =  false;
+    //        StopCoroutine(WalkSound());
+    //    }
+    //}
+
     private IEnumerator WalkSound()
     {
-        if (!sneakItemUsed)
+        yield return new WaitForFixedUpdate();
+        if (!sneakItemUsed && canJump && _isWalking)
         {
-            if (canJump && _isWalking && isSprinting && !isCrouching)
+            _stepSoundPlaying = true;
+
+            if (leftStep.isPlaying || rightStep.isPlaying)
             {
-                var leftStep = _step;
-                var rightStep = _step;
+                leftStep.Stop();
+                rightStep.Stop();
+            }
+
+            if (isSprinting && !isCrouching)
+            {
+                //var leftStep = _step;
+                //var rightStep = _step;
                 leftStep.volume = 2f;
                 rightStep.volume = 2f;
-                _stepSoundPlaying = true;
-                if (!_step.isPlaying)
-                {
-                    yield return new WaitForSeconds((0.4f) / 3f);
-                    leftStep.Play();
-                    yield return new WaitForSeconds((0.4f) / 2f);
-                    rightStep.Play();
-                    //_step.Play();
-                }
+                //_stepSoundPlaying = true;
+
+                yield return new WaitForSeconds((0.4f) / 3f);
+                leftStep.Play();
+                yield return new WaitForSeconds((0.4f) / 2f);
+                rightStep.Play();
+                
                 yield return new WaitForSeconds((0.4f) / 6f);
                 //_step.Stop();
-                leftStep.Stop();
-                rightStep.Stop();
-                _stepSoundPlaying = false;
-                //if (!_step.isPlaying)
-                //{
-                StartCoroutine(WalkSound());
-                //}
-            }
-            //else if (canJump && _isWalking && isCrouching)
-            //{
-            //    var leftStep = _step;
-            //    var rightStep = _step;
-            //    leftStep.volume = 0.5f;
-            //    rightStep.volume = 0.5f;
-            //    _stepSoundPlaying = true;
-            //    if (!_step.isPlaying)
-            //    {
-            //        yield return new WaitForSeconds((0.8f) / 3f);
-            //        leftStep.Play();
-            //        yield return new WaitForSeconds((0.8f) / 2f);
-            //        rightStep.Play();
-            //        //_step.Play();
-            //    }
-            //    yield return new WaitForSeconds((0.8f) / 6f);
-            //    //_step.Stop();
-            //    leftStep.Stop();
-            //    rightStep.Stop();
-            //    _stepSoundPlaying = false;
-            //    //if (!_step.isPlaying)
-            //    //{
-            //    StartCoroutine(WalkSound());
-            //    //}
-            //}
-            else if (canJump && _isWalking)
-            {
-                var leftStep = _step;
-                var rightStep = _step;
-                leftStep.volume = 1f;
-                rightStep.volume = 1f;
-                if (isCrouching)
-                {
-                    leftStep.volume = 0.5f;
-                    rightStep.volume = 0.5f;
-                }
-                _stepSoundPlaying = true;
-                if (!_step.isPlaying)
-                {
-                    yield return new WaitForSeconds((0.6f) / 3f);
-                    leftStep.Play();
-                    yield return new WaitForSeconds((0.6f) / 2f);
-                    rightStep.Play();
-                    //_step.Play();
-                }
-                yield return new WaitForSeconds((0.6f) / 6f);
-                leftStep.Stop();
-                rightStep.Stop();
-                //_step.Stop();
+                //leftStep.Stop();
+                //rightStep.Stop();
                 _stepSoundPlaying = false;
                 //if (!_step.isPlaying)
                 //{
@@ -530,7 +520,35 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                //var leftStep = _step;
+                //var rightStep = _step;
+                if (!isCrouching)
+                {
+                    leftStep.volume = 1f;
+                    rightStep.volume = 1f;
+                }
+                else
+                {
+                    leftStep.volume = 0.5f;
+                    rightStep.volume = 0.5f;
+                }
+                //_stepSoundPlaying = true;
+
+                yield return new WaitForSeconds((0.6f) / 3f);
+                leftStep.Play();
+                yield return new WaitForSeconds((0.6f) / 2f);
+                rightStep.Play();
+                //_step.Play();
+                
+                yield return new WaitForSeconds((0.6f) / 6f);
+                //leftStep.Stop();
+                //rightStep.Stop();
+                //_step.Stop();
                 _stepSoundPlaying = false;
+                //if (!_step.isPlaying)
+                //{
+                StartCoroutine(WalkSound());
+                //}
             }
         }
         else
@@ -648,7 +666,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Floor")
         {
             canJump = true;
-            StartCoroutine(WalkSound());
+            //StartCoroutine(WalkSound());
         }
         if (collision.gameObject.tag == "Enemy")
         {

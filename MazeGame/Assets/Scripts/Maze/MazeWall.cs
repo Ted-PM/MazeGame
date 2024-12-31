@@ -44,6 +44,11 @@ public class MazeWall : MonoBehaviour
         //Debug.Log("cuurent pos: " + transform.localPosition.y);
         //Debug.Log("goal pos: " + _endPosition.y);
 
+        if (_collider != null)
+        {
+            _collider.enabled = false;
+        }
+
         if (canLower)
         {
             //StopCoroutine("RaiseWall");
@@ -71,10 +76,10 @@ public class MazeWall : MonoBehaviour
                 _navMeshObstacle[i].carving = false;
             }
             //_boxCollider.transform.localPosition -= new Vector3 (0f, 11f, 0f);
-            if (_collider != null)
-            {
-                _collider.enabled = false;
-            }
+            //if (_collider != null)
+            //{
+            //    _collider.enabled = false;
+            //}
         }
         else
         {
