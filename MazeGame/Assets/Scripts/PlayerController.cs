@@ -162,6 +162,11 @@ public class PlayerController : MonoBehaviour
             Inventory.instance.UseItem();
         }
 
+        if (Input.GetKeyDown("e") && Inventory.instance.NearbyItemExists())
+        {
+            Debug.Log("Item Picked Up");
+            Inventory.instance.PickUpItem();
+        }
     }
 
     private IEnumerator Crouch()
@@ -347,14 +352,7 @@ public class PlayerController : MonoBehaviour
 
         if (!isCrouching && canCrouch && Input.GetKey("c"))
         {
-            //if (!isCrouching && canCrouch)
-            //{
-            //}
-                StartCoroutine(Crouch());
-            //else if (canCrouch)
-            //{
-            //    StartCoroutine(UnCrouch());
-            //}
+            StartCoroutine(Crouch());
         }
         else if (isCrouching && !Input.GetKey("c") && canCrouch)
         {
@@ -726,7 +724,7 @@ public class PlayerController : MonoBehaviour
     private void GetRandomItem()
     {
         int itemID = Random.Range(0, Inventory.instance.GetNumberOfItems());
-        Inventory.instance.PickUpItem(itemID);
+        Inventory.instance.PickUpRandomItem(itemID);
     }
     private IEnumerator WaitForNotSneaking()
     {

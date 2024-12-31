@@ -15,22 +15,57 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField]
     private List<InteractableItemScript> _interactables;
 
+    public static List<InteractableItemScript> _iteractablePrefabs;
+
     private void Awake()
     {
         Instance = this;
     }
+    //private void Start()
+    //{
+    //    _iteractablePrefabs = new List<InteractableItemScript>();
+    //}
 
     public void SpawnRandomInteractable(int x, int z)
     {
+        int newItemIndex = 0;
+
+        if (_iteractablePrefabs == null)
+        {
+            _iteractablePrefabs = new List<InteractableItemScript>();        }
+        else
+        {
+            newItemIndex = _iteractablePrefabs.Count;
+        }
         InteractableItemScript item = _interactables[Random.Range(0, _interactables.Count)];
+        //_iteractablePrefabs.Add(_interactables[Random.Range(0, _interactables.Count)]);
 
         float xPos = (float)(Random.Range(-40, 40) / 10);
         float zPos = (float)(Random.Range(-40, 40) / 10);
         float randomRotation = (float)(Random.Range(0, 360));
+        
 
         var newItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity);
         //newItem.tag = "Floor";
         newItem.transform.eulerAngles = new Vector3(0f, randomRotation, 0f);
+        newItem._globalID = newItemIndex;
+
+        _iteractablePrefabs.Add(newItem);
+
+        //// -----
+        //var secondItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity);
+        ////newItem.tag = "Floor";
+        //secondItem.transform.eulerAngles = new Vector3(0f, randomRotation, 0f);
+        //secondItem._globalID = ++newItemIndex;
+
+        //_iteractablePrefabs.Add(secondItem);
+        ////newItem._globalID = 
+        //// ----
+    }
+
+    public void RemoveItem(int globalID)
+    {
+        StartCoroutine(_iteractablePrefabs[globalID].WaitThenDestroy());
     }
 
     public void SpawnRandomItem(int x, int z)

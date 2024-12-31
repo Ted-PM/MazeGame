@@ -20,12 +20,15 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _slotContents;
 
+    private List<InteractableItemScript> _nearbyItems;
+
     private int _selectedSlot;
     private void Awake()
     {
         instance = this;
         _selectedSlot = 0;
         _slotContents.enabled = false;
+        _nearbyItems = new List<InteractableItemScript>();
     }
 
     public void SelectNextSlot()
@@ -79,7 +82,35 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void PickUpItem(int _itemID)
+    public bool NearbyItemExists()
+    {
+        return _nearbyItems.Count > 0;
+    }
+
+    public void PickUpItem()//int _itemID)
+    {
+        Debug.Log("Item Picked Up");
+        int freeSlot = FindFreeSlot();
+        if (_nearbyItems.Count > 0)
+        {
+            if (_nearbyItems[0].GetComponent<SpriteRenderer>().sprite == null)
+            {
+                Debug.LogWarning("Warning: Item doesn't have a sprite.");
+            }
+            else if (freeSlot != -1)
+            {
+                _inventorySlots[freeSlot].GetItem(_nearbyItems[0].GetComponent<SpriteRenderer>().sprite, _nearbyItems[0]._itemID);
+                Debug.Log("Item destroyed");
+                ItemSpawner.Instance.RemoveItem(_nearbyItems[0]._globalID);
+                //_nearbyItems.RemoveAt(0);
+                //ItemSpawner.RemoveItem(_nearbyItems[0]._globalID);
+                //ItemSpawner._iteractablePrefabs[_nearbyItems[0]._globalID].Rem
+                //_nearbyItems[0].
+            }
+        } 
+    }
+
+    public void PickUpRandomItem(int _itemID)
     {
         int freeSlot = FindFreeSlot();
         if (_itemList[_itemID].GetComponent<SpriteRenderer>().sprite == null)
@@ -90,6 +121,7 @@ public class Inventory : MonoBehaviour
         {
             _inventorySlots[freeSlot].GetItem(_itemList[_itemID].GetComponent<SpriteRenderer>().sprite, _itemID);
         }
+        
     }
 
     public void UseItem()
@@ -127,16 +159,47 @@ public class Inventory : MonoBehaviour
     private int FindFreeSlot()
     {
         int result = -1;
-        for (int i = 0; i < _inventorySlots.Length; i++)
+
+        if (_inventorySlots[_selectedSlot].isSelected && !_inventorySlots[_selectedSlot].hasItem)
         {
-            if (!_inventorySlots[i].hasItem)
+            result = _selectedSlot;
+        }
+        else
+        {
+            for (int i = 0; i < _inventorySlots.Length; i++)
             {
-                result = i;
-                break;
+                if (!_inventorySlots[i].hasItem)
+                {
+                    result = i;
+                    break;
+                }
             }
         }
 
         return result;
+    }
+
+    public void DisplayNearbyItems(int itemID, int globalID)
+    {
+        Debug.Log("Item being displayed");
+        if (itemID != -1)
+        {
+            _nearbyItems.Add(ItemSpawner._iteractablePrefabs[globalID]);
+            _slotContents.GetComponent<TMPro.TextMeshProUGUI>().text = (_itemList[itemID].itemName.ToString() + " [E]");
+            _slotContents.enabled = true;
+        }
+    }
+
+    public void StopDisplayNearbyItem(int globalID)
+    {
+        for (int i = 0; i < _nearbyItems.Count; i++)
+        {
+            if (_nearbyItems[i]._globalID == globalID)
+            {
+                _nearbyItems.RemoveAt(i);
+                _slotContents.enabled = false;
+            }
+        }
     }
 
     public bool HasFreeSlot()
