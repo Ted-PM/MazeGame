@@ -2471,7 +2471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.039579906, g: 0.3673489, b: 0.4113207, a: 0.40784314}
+  m_Color: {r: 0.039579906, g: 0.3673489, b: 0.4113207, a: 0.7764706}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3488,6 +3488,7 @@ MonoBehaviour:
   lookXLimit: 45
   waitBeforeResetWallsTime: 10
   _step: {fileID: 1806331411}
+  _isWalking: 0
   _heartBeat: {fileID: 940344250}
   _sprintMultiplier: 2
   isSprinting: 0
@@ -4376,6 +4377,7 @@ MonoBehaviour:
   lookXLimit: 45
   waitBeforeResetWallsTime: 10
   _step: {fileID: 568182269}
+  _isWalking: 0
   _heartBeat: {fileID: 1374663992}
   _sprintMultiplier: 2
   isSprinting: 0

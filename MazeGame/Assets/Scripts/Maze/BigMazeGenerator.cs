@@ -323,12 +323,12 @@ public class BigMazeGenerator : MonoBehaviour
             ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
 
-        if (TrueForXFalse(5))
+        if (TrueForXFalse(15))
         {
             ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
 
-        if (TrueForXFalse(30))
+        if (TrueForXFalse(40))
         {
             _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity));
         }

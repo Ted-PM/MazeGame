@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.Experimental.GraphView.GraphView;
+//using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BlindEnemy : MonoBehaviour
 {
@@ -12,6 +12,10 @@ public class BlindEnemy : MonoBehaviour
     Vector3 _currentTarget;
     NavMeshAgent agent;
     private CapsuleCollider _enemyCollider;
+    private Animator _enemyAnimation;
+
+    [SerializeField]
+    private AudioSource _whistle;
 
     [SerializeField]
     private float _enemySpeed;
@@ -28,13 +32,24 @@ public class BlindEnemy : MonoBehaviour
         _currentTarget = FindRandomDestination();
         _isRoaming = true;
         playerLoud = false;
+        _enemyAnimation = GetComponentInChildren<Animator>();
+        _whistle.Play();
         StartCoroutine(IsEnemyMoving());
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (_player.sneakItemUsed || _player.isCrouching || !_player._isWalking)
+        if (BigMazeGenerator.Instance._wallsAreUp && _whistle.volume < 1)
+        {
+            _whistle.volume = 1;
+        }
+        if (!BigMazeGenerator.Instance._wallsAreUp && agent.speed != 0)
+        {
+            UpdateEnemySpeed(3);
+            //_enemyAnimation.speed = 0;
+        }
+        else if (_player.sneakItemUsed || _player.isCrouching || !_player._isWalking)
         {
             UpdateEnemySpeed(0);
         }
@@ -90,6 +105,14 @@ public class BlindEnemy : MonoBehaviour
 
     }
 
+    private IEnumerator DecreaseWhistle()
+    {
+        while (_whistle.volume >0)
+        {
+            yield return null;
+            _whistle.volume -= 0.1f;
+        }
+    }
     //private IEnumerator WaitBeforeResetRoam()
     //{
     //yield return new WaitForSeconds(1);
@@ -110,6 +133,7 @@ public class BlindEnemy : MonoBehaviour
     }
     private void UpdateEnemySpeed(int ID = 0)
     {
+        _enemyAnimation.speed = 1;
         switch (ID)
         {
             case 0:
@@ -124,10 +148,17 @@ public class BlindEnemy : MonoBehaviour
                 agent.speed = _enemySpeed + 5;
                 playerLoud = true;
                 break;
+            case 3:
+                agent.speed = 0f;
+                playerLoud = false;
+                StartCoroutine(DecreaseWhistle());
+                _enemyAnimation.speed = 0;
+                break;
             default:
                 Debug.LogWarning("Enemy speed not found");
                 break;
         }
+  
     }
 
     private void Chase(Vector3 dest)
