@@ -27,6 +27,11 @@ public class BigMazeGenerator : MonoBehaviour
     [SerializeField]
     private EnemyController _enemyControllerPrefab;
 
+    [SerializeField]
+    private BlindEnemy _blindEnemyPrefab;
+
+    private List<BlindEnemy> _blindEnemyList;
+
     // how wided the maze is (x:0 to x:_mazeWidth)
     [SerializeField]
     private int _mazeWidth;
@@ -128,6 +133,7 @@ public class BigMazeGenerator : MonoBehaviour
         _wallsToBreak = GetWallsToBreak();
 
         _enemyList = new List<EnemyController>();
+        _blindEnemyList = new List<BlindEnemy>();
 
         // instantiate all maze cells and stores them in arr at right index
         for (int i = 0; i < _mazeWidth; i++)
@@ -320,6 +326,11 @@ public class BigMazeGenerator : MonoBehaviour
         if (TrueForXFalse(5))
         {
             ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        }
+
+        if (TrueForXFalse(30))
+        {
+            _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity));
         }
             //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));

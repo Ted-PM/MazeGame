@@ -23,7 +23,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private AudioSource _step;
     private bool _stepSoundPlaying;
-    private bool _isWalking;
+    [HideInInspector]
+    public bool _isWalking;
 
     [SerializeField]
     private AudioSource _heartBeat;
