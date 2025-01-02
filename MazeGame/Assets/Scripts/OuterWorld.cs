@@ -9,6 +9,9 @@ public class OuterWorld : MonoBehaviour
 
     [SerializeField]
     private GameObject _eyePrefab;
+
+    [SerializeField]
+    private GameObject _eyeParent;
     //private List<GameObject> _eyeList;
 
     public bool canRaise = false;
@@ -37,17 +40,17 @@ public class OuterWorld : MonoBehaviour
         for (int i = 0;  i < width; i++)
         {
             i+=5;
-            var tempEye = Instantiate(_eyePrefab, new Vector3 (i*10, 40, -30), Quaternion.identity);
+            var tempEye = Instantiate(_eyePrefab, new Vector3 (i*10, 40, -30), Quaternion.identity, _eyeParent.transform);
             tempEye.transform.localScale = new Vector3(500, 500, 500);
-            var tempEye2 = Instantiate(_eyePrefab, new Vector3(i * 10, 40, depth*10+30), Quaternion.identity);
+            var tempEye2 = Instantiate(_eyePrefab, new Vector3(i * 10, 40, depth*10+30), Quaternion.identity, _eyeParent.transform);
             tempEye2.transform.localScale = new Vector3(500, 500, 500);
         }
         for (int i = 0; i < depth; i++)
         {
             i+=5;
-            var tempEye = Instantiate(_eyePrefab, new Vector3(-30, 40, i*10), Quaternion.identity);
+            var tempEye = Instantiate(_eyePrefab, new Vector3(-30, 40, i*10), Quaternion.identity, _eyeParent.transform);
             tempEye.transform.localScale = new Vector3(500, 500, 500);
-            var tempEye2 = Instantiate(_eyePrefab, new Vector3(width*10 + 30, 40, i*10), Quaternion.identity);
+            var tempEye2 = Instantiate(_eyePrefab, new Vector3(width*10 + 30, 40, i*10), Quaternion.identity, _eyeParent.transform);
             tempEye2.transform.localScale = new Vector3(500, 500, 500);
         }
     }

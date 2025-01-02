@@ -105,6 +105,14 @@ public class BigMazeGenerator : MonoBehaviour
     [SerializeField]
     private GameObject _loadingScreen;
 
+    [SerializeField]    
+    private GameObject _mazeCellParent;
+
+    [SerializeField]
+    private GameObject _blindEnemyParent;
+    [SerializeField]
+    private GameObject _shyEnemyParent;
+
     private void Awake()
     {
         Instance = this;
@@ -142,7 +150,7 @@ public class BigMazeGenerator : MonoBehaviour
             {
                 // i*10 = the x pos of the cell and j*10 = the z pos of the cell
                 // i = grind row index and j = grid column index
-                _mazeGrid[i, j] = Instantiate(_mazeCellPrefab, new Vector3((float)(i*10), 0, (float)(j * 10)), Quaternion.identity);
+                _mazeGrid[i, j] = Instantiate(_mazeCellPrefab, new Vector3((float)(i*10), 0, (float)(j * 10)), Quaternion.identity, _mazeCellParent.transform);
             }
         }
 
@@ -292,7 +300,7 @@ public class BigMazeGenerator : MonoBehaviour
             }
 
             // spawn the first enemy at the end of the maze, infront of the end
-            _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, _enemyFallHeight, endCell[1]*10), Quaternion.identity));
+            _enemyList.Add(Instantiate(_enemyControllerPrefab, new Vector3(endCell[0]*10, _enemyFallHeight, endCell[1]*10), Quaternion.identity, _shyEnemyParent.transform));
         }
 
         // choose a random material from the list
@@ -330,7 +338,7 @@ public class BigMazeGenerator : MonoBehaviour
 
         if (TrueForXFalse(40))
         {
-            _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity));
+            _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity, _blindEnemyParent.transform));
         }
             //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));

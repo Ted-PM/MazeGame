@@ -17,6 +17,11 @@ public class ItemSpawner : MonoBehaviour
 
     public static List<InteractableItemScript> _iteractablePrefabs;
 
+    [SerializeField]
+    private GameObject _staticItemsParent;
+
+    [SerializeField]
+    private List<GameObject> _interactableParent;
     private void Awake()
     {
         Instance = this;
@@ -37,7 +42,9 @@ public class ItemSpawner : MonoBehaviour
         {
             newItemIndex = _iteractablePrefabs.Count;
         }
-        InteractableItemScript item = _interactables[Random.Range(0, _interactables.Count)];
+
+        int newItemParent = Random.Range(0, _interactables.Count);
+        InteractableItemScript item = _interactables[newItemParent];
         //_iteractablePrefabs.Add(_interactables[Random.Range(0, _interactables.Count)]);
 
         float xPos = (float)(Random.Range(-40, 40) / 10);
@@ -45,7 +52,7 @@ public class ItemSpawner : MonoBehaviour
         float randomRotation = (float)(Random.Range(0, 360));
         
 
-        var newItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity);
+        var newItem = Instantiate(item, new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity, _interactableParent[newItemParent].transform);
         //newItem.tag = "Floor";
         newItem.transform.eulerAngles = new Vector3(0f, randomRotation, 0f);
         newItem._globalID = newItemIndex;
@@ -76,7 +83,7 @@ public class ItemSpawner : MonoBehaviour
         float zPos = (float)(Random.Range(-40, 40)/10);
         float randomRotation = (float)(Random.Range(0, 360));
 
-        var newItem = Instantiate(item, /*item.transform.position + */new Vector3(10*x + xPos, 0, 10*z + zPos), Quaternion.identity);
+        var newItem = Instantiate(item, new Vector3(10*x + xPos, 0, 10*z + zPos), Quaternion.identity, _staticItemsParent.transform);
         newItem.tag = "Floor";
         newItem.transform.eulerAngles = new Vector3(0f, randomRotation, 0f);
     }
