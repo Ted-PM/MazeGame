@@ -113,6 +113,11 @@ public class BigMazeGenerator : MonoBehaviour
     [SerializeField]
     private GameObject _shyEnemyParent;
 
+    [SerializeField]
+    private int _totalNumInteractables;
+
+    [SerializeField]
+    private EndCell _endCellPrefab;
     private void Awake()
     {
         Instance = this;
@@ -143,6 +148,11 @@ public class BigMazeGenerator : MonoBehaviour
         _enemyList = new List<EnemyController>();
         _blindEnemyList = new List<BlindEnemy>();
 
+        if (_totalNumInteractables < ItemSpawner.Instance.GetUniqueItemsCount() * ItemSpawner.Instance._minNumPerInteractable)
+        {
+            _totalNumInteractables = ItemSpawner.Instance.GetUniqueItemsCount() * ItemSpawner.Instance._minNumPerInteractable;
+        }
+
         // instantiate all maze cells and stores them in arr at right index
         for (int i = 0; i < _mazeWidth; i++)
         {
@@ -157,6 +167,8 @@ public class BigMazeGenerator : MonoBehaviour
         // because GenerateMaze calls a recursive function, start at first cell [0,0]
         GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
+        SpawnInteractables();
+
         StartCoroutine(WaitThenStartGame());
     }
 
@@ -268,12 +280,38 @@ public class BigMazeGenerator : MonoBehaviour
 
         for (int i = 0; i < _numWallsToBreak; i++)
         {
-            wallsToBreak[0, i] = Random.Range(1, _mazeDepth-1);
-            wallsToBreak[1, i] = Random.Range(1, _mazeWidth - 1);
+            wallsToBreak[0, i] = Random.Range(4, _mazeDepth-1);
+            wallsToBreak[1, i] = Random.Range(4, _mazeWidth - 1);
         }
 
         return wallsToBreak;
     }
+
+    private void SpawnInteractables()
+    {
+        List<Vector2Int> interactableCells= new List<Vector2Int>();
+
+        for (int i = 0; i < _totalNumInteractables; i++)
+        {
+            interactableCells.Add(new Vector2Int(Random.Range(3,_mazeWidth-1), Random.Range(3, _mazeDepth-1)));
+        }
+
+        for (int i = 0; i < interactableCells.Count; i++)
+        {
+            ItemSpawner.Instance.SpawnRandomInteractable(interactableCells[i].x, interactableCells[i].y);
+        }
+        //SpawnInteractables(interactableCells);
+        //return interactableCells;
+    }
+
+    //private void SpawnInteractables(List<Vector2Int> interactableCells)
+    //{
+    //    for (int i = 0; i < interactableCells.Count; i++)
+    //    {
+    //        ItemSpawner.Instance.SpawnRandomInteractable(interactableCells[i].x, interactableCells[i].y);
+    //    }
+    //}
+
 
     /* GenerateMaze(cell visited before current, the currentCell, index of the end cell [x, z], indexes of all "random" cells with walls to break)
      * generates maze by marking current cell as visited, then finding a random adjacent UNVISITED cell, then breaking the walls between
@@ -291,12 +329,15 @@ public class BigMazeGenerator : MonoBehaviour
                 // calls a MazeCell member function to mark the cell as the end and destroy the "end" wall
                 // pass true to the function knows to destroy the right wall
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(true);
-                
+                var endCellObj = Instantiate(_endCellPrefab, new Vector3(currentCell.transform.position.x + 10, 0f, currentCell.transform.position.z), Quaternion.identity);
+                endCellObj.DisableLeft();
             }
             else
             {
                 // if not on the right wall, but be at the top (z = max), pass false so func knows to destroy the top wall
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
+                var endCellObj = Instantiate(_endCellPrefab, new Vector3(currentCell.transform.position.x, 0f, currentCell.transform.position.z + 10), Quaternion.identity);
+                endCellObj.DisableBottom();
             }
 
             // spawn the first enemy at the end of the maze, infront of the end
@@ -331,12 +372,12 @@ public class BigMazeGenerator : MonoBehaviour
             ItemSpawner.Instance.SpawnRandomItem((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         }
 
-        if (TrueForXFalse(15))
-        {
-            ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
-        }
+        //if (TrueForXFalse(15))
+        //{
+        //    ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
+        //}
 
-        if (TrueForXFalse(40))
+        if (TrueForXFalse(40) && ((int)((currentCell.transform.position.x+5) / 10) * 10 > 3 && (int)((currentCell.transform.position.z+5) / 10) * 10 > 3))
         {
             _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity, _blindEnemyParent.transform));
         }
@@ -722,6 +763,7 @@ public class BigMazeGenerator : MonoBehaviour
         // parrallel array to the _mazeGrid, but bools to check if that node has been used in the main path 
         bool[,] nodeVisited = new bool[_mazeWidth, _mazeDepth];
         List<MazeCell> bestPath = new List<MazeCell>();
+        List<int> cellCost = new List<int>();
 
         Transform playerPosition = Camera.main.transform;
         int playerX = (int)((playerPosition.transform.position.x + 5) / 10);
@@ -731,9 +773,9 @@ public class BigMazeGenerator : MonoBehaviour
 
         if (_mazeGrid[playerX, playerZ] != _mazeGrid[_endCell[0], _endCell[1]])
         {
-            FindBestPathRec(nodeVisited, playerX, playerZ, ref minCost, ref bestPath);
+            FindBestPathRec(ref nodeVisited, playerX, playerZ, ref minCost, ref bestPath, ref cellCost);
 
-            StartCoroutine(DisplayBestPath(bestPath));
+            StartCoroutine(DisplayBestPath(bestPath, cellCost));
         }
 
 
@@ -742,7 +784,8 @@ public class BigMazeGenerator : MonoBehaviour
      * 
      * 
      */
-    private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost, ref List<MazeCell> bestPath)
+    //private bool FindBestPathRec(bool[,] nodeVisted, int x, int z, ref int cost, ref List<MazeCell> bestPath)
+    private bool FindBestPathRec(ref bool[,] nodeVisted, int x, int z, ref int cost, ref List<MazeCell> bestPath, ref List<int> cellCost)
     {
         // set that the best path isn't found
         bool result = false;
@@ -760,6 +803,7 @@ public class BigMazeGenerator : MonoBehaviour
             result = true;
             nodeVisted[x, z] = true;
             bestPath.Add(_mazeGrid[x, z]);
+            cellCost.Add(cost);
 
         }   
         else
@@ -772,14 +816,19 @@ public class BigMazeGenerator : MonoBehaviour
 
                 // get relative cost of each other path (i.e. find cost of going to end using current cell as start)
                 // also use a bool to check if that path acc lead to the end
-                int leftCost = 0;
+                int leftCost = cost;
                 bool leftTrue = false;
-                int rightCost = 0;
+                int rightCost = cost;
                 bool rightTrue = false;
-                int frontCost = 0;
+                int frontCost = cost;
                 bool frontTrue = false;
-                int backCost = 0;
+                int backCost = cost;
                 bool backTrue = false;
+
+                bool[,] leftNodeVisited = nodeVisted;
+                bool[,] rightNodeVisited = nodeVisted;
+                bool[,] frontNodeVisited = nodeVisted;
+                bool[,] backNodeVisited = nodeVisted;
 
                 // default this to 3 (will be used to select which path is best)
                 // 0: left, 1: right, 2: front, 3: back
@@ -788,22 +837,22 @@ public class BigMazeGenerator : MonoBehaviour
                 // check functions return true if the cell in that direction is accessible (i.e. no wall blocking) 
                 if (CheckLeft(x, z))
                 {
-                    leftTrue = FindBestPathRec(nodeVisted, x - 1, z, ref leftCost, ref bestPath);
+                    leftTrue = FindBestPathRec(ref leftNodeVisited, x - 1, z, ref leftCost, ref bestPath, ref cellCost);
                     if (leftTrue) { result = true; }
                 }
                 if (CheckRight(x, z))
                 {
-                    rightTrue = FindBestPathRec(nodeVisted, x + 1, z, ref rightCost, ref bestPath);
+                    rightTrue = FindBestPathRec(ref rightNodeVisited, x + 1, z, ref rightCost, ref bestPath, ref cellCost);
                     if (rightTrue) { result = true; }
                 }
                 if (CheckFront(x, z))
                 {
-                    frontTrue = FindBestPathRec(nodeVisted, x, z + 1, ref frontCost, ref bestPath);
+                    frontTrue = FindBestPathRec(ref frontNodeVisited, x, z + 1, ref frontCost, ref bestPath, ref cellCost);
                     if (frontTrue) { result = true; }
                 }
                 if (CheckBack(x, z))
                 {
-                    backTrue = FindBestPathRec(nodeVisted, x, z - 1, ref backCost, ref bestPath);
+                    backTrue = FindBestPathRec(ref backNodeVisited, x, z - 1, ref backCost, ref bestPath, ref cellCost);
                     if (backTrue) { result = true; }
                 }
 
@@ -811,6 +860,8 @@ public class BigMazeGenerator : MonoBehaviour
                 {
                     // if one of the paths led to the end, add the current cell to the bestPath List
                     bestPath.Add(_mazeGrid[x, z]);
+                    int tempCost = cost;
+                    cellCost.Add(tempCost);
 
                     // if left lead to the exit, compare it to the cost of all the other paths which also  lead to the exit
                     if (leftTrue)
@@ -876,20 +927,26 @@ public class BigMazeGenerator : MonoBehaviour
                     // increase the refrence cost by the best path
                     if (trueDirection == 0)
                     {
+                        nodeVisted = leftNodeVisited;
                         cost += leftCost;
                     }
                     else if (trueDirection == 1)
                     {
+                        nodeVisted = rightNodeVisited;
                         cost += rightCost;
                     }
                     else if (trueDirection == 2)
                     {
+                        nodeVisted = frontNodeVisited;
                         cost += frontCost;
                     }
                     else if (trueDirection == 3)
                     {
+                        nodeVisted = backNodeVisited;
                         cost += backCost;
                     }
+                    //int tempCost = cost;
+                    //cellCost.Add(tempCost);
                 }
             }
         }
@@ -902,7 +959,7 @@ public class BigMazeGenerator : MonoBehaviour
      * displays a particle orb thing that moves from the players location to the end of the maze (leaving trail behind)
      * 
      */
-    private IEnumerator DisplayBestPath(List<MazeCell> bestPath)
+    private IEnumerator DisplayBestPath(List<MazeCell> bestPath, List<int> cellCost)
     {
         // create the prefab
         var _pathLine = Instantiate(_pathLinePrefab, bestPath[bestPath.Count() - 1].transform.position + new Vector3(0,5,0), Quaternion.identity);
@@ -932,11 +989,15 @@ public class BigMazeGenerator : MonoBehaviour
                 // add icon over cell 
                 //Debug.Log("CurrentCell (X,Z): " + bestPath[i].transform.position.x + ", " + bestPath[i].transform.position.z);
                 bestPath[i].EnablePathToEnd();
+                //Debug.Log("cell: x(" + (int)(bestPath[i].transform.position.x + 5) / 10 + "), z(" + (int)(bestPath[i].transform.position.z + 5) / 10 + "), COST = " + cellCost[i]);
             }
+            // ----
             if (bestPath[i].isFrontEnd || bestPath[i].isRightEnd || _wallsAreUp)
             {
                 break;
+                //Debug.Log("^END CELL");
             }
+            // ----
         }
 
         // when done destroy path prefab and disbale all the icons over the path cells

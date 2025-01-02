@@ -22,9 +22,15 @@ public class ItemSpawner : MonoBehaviour
 
     [SerializeField]
     private List<GameObject> _interactableParent;
+
+    public int _minNumPerInteractable;// { get; private set; }
+    private int[] _numInteractables;
+
     private void Awake()
     {
         Instance = this;
+        _numInteractables = new int[_interactables.Count];
+        //_numInteractables = new int[_interactables.Count]();
     }
     //private void Start()
     //{
@@ -43,7 +49,8 @@ public class ItemSpawner : MonoBehaviour
             newItemIndex = _iteractablePrefabs.Count;
         }
 
-        int newItemParent = Random.Range(0, _interactables.Count);
+        //int newItemParent = Random.Range(0, _interactables.Count);
+        int newItemParent = ChooseInteractable();
         InteractableItemScript item = _interactables[newItemParent];
         //_iteractablePrefabs.Add(_interactables[Random.Range(0, _interactables.Count)]);
 
@@ -58,6 +65,7 @@ public class ItemSpawner : MonoBehaviour
         newItem._globalID = newItemIndex;
 
         _iteractablePrefabs.Add(newItem);
+        _numInteractables[newItemParent]++;
 
         //// -----
         //var secondItem = Instantiate(item, /*item.transform.position + */new Vector3(10 * x + xPos, 0.2f, 10 * z + zPos), Quaternion.identity);
@@ -68,6 +76,34 @@ public class ItemSpawner : MonoBehaviour
         //_iteractablePrefabs.Add(secondItem);
         ////newItem._globalID = 
         //// ----
+    }
+
+    private int ChooseInteractable()
+    {
+        int result = -1;
+        List<int> unusedInteractables = new List<int>();
+        for (int i = 0; i < _interactables.Count; i++)
+        {
+            if (_numInteractables[i] < _minNumPerInteractable)
+            {
+                unusedInteractables.Add(i);
+            }
+        }
+
+        if (unusedInteractables.Count > 0)
+        {
+            result = Random.Range(0, unusedInteractables.Count);
+            result = unusedInteractables[result];
+        }
+        else
+        {
+            result = Random.Range(0, _interactables.Count);
+        }
+
+        //int newItemParent = Random.Range(0, _interactables.Count);
+        //InteractableItemScript item = _interactables[newItemParent];
+
+        return result;
     }
 
     public void RemoveItem(int globalID)
@@ -118,5 +154,10 @@ public class ItemSpawner : MonoBehaviour
 
         var newItem = Instantiate(wallItem, new Vector3(x * 10, 1.5f, -4f + z * 10), Quaternion.identity);
         newItem.transform.eulerAngles = new Vector3(0f, 180f, 0f);
+    }
+
+    public int GetUniqueItemsCount()
+    {
+        return _interactables.Count;
     }
 }

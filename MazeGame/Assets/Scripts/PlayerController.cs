@@ -286,13 +286,14 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
-        else if (rb.velocity.magnitude < 2f)
+        else if (rb.velocity.magnitude < 2f && canJump)
         {
             rb.velocity = rb.velocity.normalized * 0f;
         }
 
         if (canJump && !Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
         {
+            Debug.Log("no input");
             rb.velocity = rb.velocity.normalized * 0f;
             StopCoroutine(PlayerWalkingAnim());
             StopCoroutine(WalkSound());
@@ -300,6 +301,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space) && canJump && !isCrouching)
         {
+            Debug.Log("jumped");
             canJump = false;
             //rb.AddForce(transform.up * jumpForce);
             rb.AddRelativeForce(Vector3.up * jumpForce, ForceMode.Impulse);

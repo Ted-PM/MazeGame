@@ -83,7 +83,7 @@ public class EnemyController : MonoBehaviour
             else if (!_isRoaming)
             {
                 _destination = FindRandomDestination();
-                Debug.Log("Find new destination: x = " + _destination.x + ", z = " + _destination.z);
+                //Debug.Log("Find new destination: x = " + _destination.x + ", z = " + _destination.z);
                 EnemyRoam(_destination);
             }
             else
@@ -190,8 +190,8 @@ public class EnemyController : MonoBehaviour
 
         if (playerDistanceX <= 10 && playerDistanceX >= -10 && playerDistanceZ <= 10 && playerDistanceZ >= -10)
         {
-            Debug.Log("arrived at destination: x = " + destination.x + ", z = " + destination.z);
-            Debug.Log("moster currently at: x = " + transform.position.x + ", z = " + transform.position.z);
+            //Debug.Log("arrived at destination: x = " + destination.x + ", z = " + destination.z);
+            //Debug.Log("moster currently at: x = " + transform.position.x + ", z = " + transform.position.z);
             _isRoaming = false;
         }
         else

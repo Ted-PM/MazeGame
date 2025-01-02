@@ -97,7 +97,7 @@ public class BlindEnemy : MonoBehaviour
         float zChange = newPos.z - oldPos.z;
         if (xChange < 0.5f && xChange > -0.5f && zChange < 0.5f && zChange > -0.5f)
         {
-            Debug.Log("Enemy not moving, finding new path");
+            //Debug.Log("Enemy not moving, finding new path");
             _isRoaming = false;
         }
 
@@ -124,7 +124,7 @@ public class BlindEnemy : MonoBehaviour
         float playerDistanceX = transform.position.x - target.position.x;
         float playerDistanceZ = transform.position.z - target.position.z;
 
-        if ((playerDistanceX <= 50 && playerDistanceX >= -50 && playerDistanceZ <= 50 && playerDistanceZ >= -50) || BigMazeGenerator.Instance._wallsAreUp)
+        if ((playerDistanceX <= 25 && playerDistanceX >= -25 && playerDistanceZ <= 25 && playerDistanceZ >= -25) || BigMazeGenerator.Instance._wallsAreUp)
         {
             result = true;
         }
