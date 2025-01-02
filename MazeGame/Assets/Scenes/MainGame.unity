@@ -6377,6 +6377,7 @@ MonoBehaviour:
   _mazeCellPrefab: {fileID: 5943907839882638597, guid: 2cb735066e2c31a49a6400ceb197a8af, type: 3}
   _enemyControllerPrefab: {fileID: 1129351329254573856, guid: 305e90fb986ef364cb28129e681a4296, type: 3}
   _blindEnemyPrefab: {fileID: -3267677700872989193, guid: b7cf601a9acfc7340924ad71711721dd, type: 3}
+  _maxNumBlindEnemies: 4
   _mazeWidth: 15
   _mazeDepth: 20
   _materials:

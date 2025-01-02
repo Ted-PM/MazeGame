@@ -29,6 +29,8 @@ public class BigMazeGenerator : MonoBehaviour
 
     [SerializeField]
     private BlindEnemy _blindEnemyPrefab;
+    [SerializeField]
+    private int _maxNumBlindEnemies;
 
     private List<BlindEnemy> _blindEnemyList;
 
@@ -168,6 +170,7 @@ public class BigMazeGenerator : MonoBehaviour
         GenerateMaze(null, _mazeGrid[0, 0], _endCell, _wallsToBreak);
         _canResetWalls = true;
         SpawnInteractables();
+        SpawnBlindEnemies();
 
         StartCoroutine(WaitThenStartGame());
     }
@@ -304,6 +307,19 @@ public class BigMazeGenerator : MonoBehaviour
         //return interactableCells;
     }
 
+    private void SpawnBlindEnemies()
+    {
+        List<Vector2Int> blindEnemyCells = new List<Vector2Int>();
+        for (int i = 0; i < _maxNumBlindEnemies; i ++)
+        {
+            blindEnemyCells.Add(new Vector2Int(Random.Range(5, _mazeWidth - 1), Random.Range(5, _mazeDepth - 1)));
+        }
+        for (int i = 0; i < _maxNumBlindEnemies; i++)
+        {
+            Instantiate(_blindEnemyPrefab, new Vector3(blindEnemyCells[i].x * 10, 0, blindEnemyCells[i].y * 10), Quaternion.identity, _blindEnemyParent.transform);
+        }
+    }
+
     //private void SpawnInteractables(List<Vector2Int> interactableCells)
     //{
     //    for (int i = 0; i < interactableCells.Count; i++)
@@ -377,10 +393,10 @@ public class BigMazeGenerator : MonoBehaviour
         //    ItemSpawner.Instance.SpawnRandomInteractable((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //}
 
-        if (TrueForXFalse(40) && ((int)((currentCell.transform.position.x+5) / 10) * 10 > 3 && (int)((currentCell.transform.position.z+5) / 10) * 10 > 3))
-        {
-            _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity, _blindEnemyParent.transform));
-        }
+        //if (TrueForXFalse(40) && ((int)((currentCell.transform.position.x+5) / 10) * 10 > 3 && (int)((currentCell.transform.position.z+5) / 10) * 10 > 3))
+        //{
+        //    _blindEnemyList.Add(Instantiate(_blindEnemyPrefab, new Vector3((int)(currentCell.transform.position.x / 10) * 10, 0, (int)(currentCell.transform.position.z / 10) * 10), Quaternion.identity, _blindEnemyParent.transform));
+        //}
             //ItemSpawner.Instance.SpawnWallItemLeft((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemRight((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
         //ItemSpawner.Instance.SpawnWallItemFront((int)(currentCell.transform.position.x / 10), (int)(currentCell.transform.position.z / 10));
