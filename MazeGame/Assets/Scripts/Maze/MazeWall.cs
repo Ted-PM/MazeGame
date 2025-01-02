@@ -51,6 +51,7 @@ public class MazeWall : MonoBehaviour
 
         if (canLower)
         {
+
             //StopCoroutine("RaiseWall");
             yield return 0;
             Vector3 startPosition = transform.localPosition;
@@ -58,6 +59,12 @@ public class MazeWall : MonoBehaviour
             canRaise = true;
             float time = 0f;
             float t = 0;
+
+            for (int i = 0; i < _navMeshObstacle.Count; i++)
+            {
+                _navMeshObstacle[i].enabled = false;
+                //_navMeshObstacle[i].carving = false;
+            }
             //_endPosition = _startPosition + endPosition;
 
             while (t < 1)
@@ -70,11 +77,11 @@ public class MazeWall : MonoBehaviour
             }
 
             //_navMeshObstacle.carving = false;
-            for (int i = 0; i < _navMeshObstacle.Count; i++)
-            {
-                //_navMeshObstacle[i].enabled = false;
-                _navMeshObstacle[i].carving = false;
-            }
+            //for (int i = 0; i < _navMeshObstacle.Count; i++)
+            //{
+            //    _navMeshObstacle[i].enabled = false;
+            //    //_navMeshObstacle[i].carving = false;
+            //}
             //_boxCollider.transform.localPosition -= new Vector3 (0f, 11f, 0f);
             //if (_collider != null)
             //{
@@ -106,8 +113,8 @@ public class MazeWall : MonoBehaviour
 
             for (int i = 0; i < _navMeshObstacle.Count; i++)
             {
-                //_navMeshObstacle[i].enabled = true;
-                _navMeshObstacle[i].carving = true;
+                _navMeshObstacle[i].enabled = true;
+                //_navMeshObstacle[i].carving = true;
             }
 
             while (t < 1)

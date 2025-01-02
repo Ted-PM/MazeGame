@@ -293,7 +293,7 @@ public class PlayerController : MonoBehaviour
 
         if (canJump && !Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
         {
-            Debug.Log("no input");
+            //Debug.Log("no input");
             rb.velocity = rb.velocity.normalized * 0f;
             StopCoroutine(PlayerWalkingAnim());
             StopCoroutine(WalkSound());
@@ -320,13 +320,13 @@ public class PlayerController : MonoBehaviour
         IsPlayerMoving();
 
 
-        if (Input.GetKey("left shift") && _sprintBar.canSprint && !isSprinting && rb.velocity.magnitude > 0.1f && !isCrouching)
+        if (Input.GetKey(KeyCode.LeftShift) && _sprintBar.canSprint && !isSprinting && rb.velocity.magnitude > 0.1f && !isCrouching)
         {
             //StopCoroutine("PlayerWalkingAnim");
             //StartCoroutine(PlayerWalkingAnim(0.2f, 3f));
             StartSprinting();
         }
-        else if ((!Input.GetKey("left shift")  || !_sprintBar.canSprint || rb.velocity.magnitude <= 0.1f || isCrouching) && isSprinting)
+        else if ((!Input.GetKey(KeyCode.LeftShift)  || !_sprintBar.canSprint || rb.velocity.magnitude <= 0.1f || isCrouching) && isSprinting)
         {
             Debug.Log("Stop sprinting");
             //StopCoroutine("PlayerWalkingAnim");
@@ -349,15 +349,15 @@ public class PlayerController : MonoBehaviour
         else if (!_isWalking) 
         {
             //_playerCamera.GetComponent<Animator>().ResetTrigger("ShakeCameraTrigger");
-            StopCoroutine("PlayerWalkingAnim");
+            StopCoroutine(PlayerWalkingAnim());
             StopCoroutine(WalkSound());
         }
 
-        if (!isCrouching && canCrouch && Input.GetKey("c"))
+        if (!isCrouching && canCrouch && Input.GetKey(KeyCode.LeftControl))
         {
             StartCoroutine(Crouch());
         }
-        else if (isCrouching && !Input.GetKey("c") && canCrouch)
+        else if (isCrouching && !Input.GetKey(KeyCode.LeftControl) && canCrouch)
         {
 
                 StartCoroutine(UnCrouch());
@@ -369,7 +369,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator PlayerWalkingAnim()
     {
-        if (canJump && _isWalking)
+        if (canJump && _isWalking && (BigMazeGenerator.Instance == null || BigMazeGenerator.Instance._wallsAreUp))
         {
             _walkingAnimPlaying = true;
             float time = 0.0f;
@@ -486,7 +486,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator WalkSound()
     {
         yield return new WaitForFixedUpdate();
-        if (!sneakItemUsed && canJump && _isWalking)
+        if (!sneakItemUsed && canJump && _isWalking && (BigMazeGenerator.Instance == null || BigMazeGenerator.Instance._wallsAreUp))
         {
             _stepSoundPlaying = true;
 

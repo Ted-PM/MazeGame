@@ -53,6 +53,7 @@ public class EnemyController : MonoBehaviour
         //GetComponent<Renderer>().enabled = false;
         //agent = GetComponent<NavMeshAgent>();       //
         target = FindFirstObjectByType<PlayerController>().transform;
+        StartCoroutine(IsEnemyMoving());
         //currentHealth = maxHealth;
         //healthBarBG.gameObject.SetActive(false);
         //healthBarFill.gameObject.SetActive(false);
@@ -74,10 +75,10 @@ public class EnemyController : MonoBehaviour
             float playerDistanceX = transform.position.x - target.position.x;
             float playerDistanceZ = transform.position.z - target.position.z;
 
-            if (!PlayerController.playerInvisible &&(((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp)))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
+            if (!PlayerController.playerInvisible && ((playerDistanceX <=50 && playerDistanceX >=-50 && playerDistanceZ <=50 && playerDistanceZ >=-50) || !BigMazeGenerator.Instance._wallsAreUp))// && this.GetComponent<NavMeshPath>().status == NavMeshPathStatus.PathInvalid)
             {
-                //Debug.Log("chasing player");
-                _isRoaming = false ;
+                Debug.Log("chasing player");
+                _isRoaming = false;
                 ChasePlayer();
             }
             else if (!_isRoaming)
@@ -125,6 +126,24 @@ public class EnemyController : MonoBehaviour
             //Debug.Log("Enemy Speed: " + GetComponent<NavMeshAgent>().speed);
         }
         //LookAt();
+    }
+
+    private IEnumerator IsEnemyMoving()
+    {
+        var oldPos = transform.position;
+        yield return new WaitForSeconds(0.5f);
+        var newPos = transform.position;
+
+        float xChange = newPos.x - oldPos.x;
+        float zChange = newPos.z - oldPos.z;
+        if (xChange < 0.5f && xChange > -0.5f && zChange < 0.5f && zChange > -0.5f)
+        {
+            //Debug.Log("Enemy not moving, finding new path");
+            _isRoaming = false;
+        }
+
+        StartCoroutine(IsEnemyMoving());
+
     }
 
     public void IncreaseEnemySpeed()
