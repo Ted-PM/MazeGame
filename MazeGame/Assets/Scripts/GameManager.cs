@@ -27,7 +27,10 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
-
+        if (!PlayerPrefs.HasKey("sensitivity"))
+        {
+            PlayerPrefs.SetFloat("sensitivity", 2.5f);
+        }
         //_deathScreen.SetActive(false);
     }
 
@@ -41,6 +44,7 @@ public class GameManager : MonoBehaviour
 
     public void WelcomeMenu()
     {
+        PlayerPrefs.SetFloat("sensitivity", 1f);
         Cursor.visible = true;
         SceneManager.LoadScene("StartMenu");
     }

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     private float _baseJump;
 
     public Transform playerCamera;
-    public float lookSpeed = 2.0f;
+    public static float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
     float rotationX = 0;
     Rigidbody rb;
@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        lookSpeed = PlayerPrefs.GetFloat("sensitivity");
         //_sprintCoroutine = _sprintBar.StartSprinting();
         //_stopSprintCoroutine = _sprintBar.StopSprinting();
         playerInvisible = false;
@@ -97,6 +98,11 @@ public class PlayerController : MonoBehaviour
         //StartCoroutine(WalkSound());
         //rb = GetComponent<Rigidbody>();
     }
+
+    //public void ChangeSens()
+    //{
+    //    lookSpeed = PlayerPrefs.GetFloat("sensitivity");
+    //}
     void Update()
     {
         lookAtMouse();

@@ -7544,7 +7544,7 @@ MonoBehaviour:
   jumpForce: 400
   playerCamera: {fileID: 963194228}
   lookSpeed: 5
-  lookXLimit: 45
+  lookXLimit: 60
   waitBeforeResetWallsTime: 10
   _step: {fileID: 1013598681}
   _isWalking: 0
