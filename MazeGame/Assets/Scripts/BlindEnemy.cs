@@ -124,8 +124,14 @@ public class BlindEnemy : MonoBehaviour
         float playerDistanceX = transform.position.x - target.position.x;
         float playerDistanceZ = transform.position.z - target.position.z;
 
-        if ((playerDistanceX <= 25 && playerDistanceX >= -25 && playerDistanceZ <= 25 && playerDistanceZ >= -25) || BigMazeGenerator.Instance._wallsAreUp)
+        if ((playerDistanceX <= 25 && playerDistanceX >= -25 && playerDistanceZ <= 25 && playerDistanceZ >= -25) && BigMazeGenerator.Instance._wallsAreUp && _player.isSprinting)
         {
+            Debug.Log("Player in sprint distance");
+            result = true;
+        }
+        else if ((playerDistanceX <= 15 && playerDistanceX >= -15 && playerDistanceZ <= 15 && playerDistanceZ >= -15) && BigMazeGenerator.Instance._wallsAreUp && !_player.isSprinting)
+        {
+            Debug.Log("Player in walk distance");
             result = true;
         }
 

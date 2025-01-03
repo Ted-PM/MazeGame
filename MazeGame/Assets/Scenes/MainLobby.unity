@@ -3879,6 +3879,7 @@ MonoBehaviour:
   crouchAmount: 0
   timeToCrouch: 0
   canCrouch: 0
+  _playerEffects: {fileID: 0}
 --- !u!224 &839844420
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4708,12 +4709,12 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'There is a monster in this maze, who yearns for your flesh. However, he
     is very shy but don''t let that fool you, though he may freeze when seen... they
-    multiply when you look away....
+    multiply when you look away.... And if you hear a whistle, make sure to sneak!
 
 
-    You must find the exit before they can
-    reach you, lowering the walls may show you the path, but will also expose you
-    to them.
+    You
+    must find the exit before they can reach you, lowering the walls may show you
+    the path, but will also expose you to them.
 
 
     Good luck chum.'
@@ -4743,8 +4744,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4878,6 +4879,7 @@ MonoBehaviour:
   crouchAmount: 0.5
   timeToCrouch: 0.2
   canCrouch: 0
+  _playerEffects: {fileID: 0}
 --- !u!224 &1095876613
 RectTransform:
   m_ObjectHideFlags: 0
