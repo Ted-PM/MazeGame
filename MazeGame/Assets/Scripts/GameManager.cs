@@ -9,7 +9,9 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
+    [HideInInspector]
+    //public bool gamePlaying;
+    //private float _gameTime;
     //[SerializeField]
     //private GameObject _deathScreen;
     //[SerializeField]
@@ -30,6 +32,10 @@ public class GameManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("sensitivity"))
         {
             PlayerPrefs.SetFloat("sensitivity", 2.5f);
+        }
+        if (!PlayerPrefs.HasKey("gameTime"))
+        {
+            PlayerPrefs.SetFloat("gameTime", 0f);
         }
         //_deathScreen.SetActive(false);
     }

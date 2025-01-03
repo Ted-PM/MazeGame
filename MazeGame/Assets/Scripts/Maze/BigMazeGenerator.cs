@@ -120,6 +120,11 @@ public class BigMazeGenerator : MonoBehaviour
 
     [SerializeField]
     private EndCell _endCellPrefab;
+
+    [SerializeField]
+    private GameObject _timer;
+    //private float _gameTime;
+    //private bool _gamePlaying;
     private void Awake()
     {
         Instance = this;
@@ -127,7 +132,10 @@ public class BigMazeGenerator : MonoBehaviour
 
     void Start()
     {
+        //_gamePlaying = false;
+        //_gameTime = 0f;
         //Camera.main.GetComponent<AudioListener>().volume = 0;
+        _timer.SetActive(false);
         AudioListener.volume = 0;
         FindObjectOfType<PlayerController>().FreezePlayer();
         // all walls begin at max height
@@ -175,6 +183,20 @@ public class BigMazeGenerator : MonoBehaviour
         StartCoroutine(WaitThenStartGame());
     }
 
+    //private void FixedUpdate()
+    //{
+    //    if (_gamePlaying)
+    //    {
+    //        _gameTime += Time.fixedDeltaTime;
+    //    }
+    //}
+
+    //private void OnDestroy()
+    //{
+    //    _gamePlaying = false;
+    //    PlayerPrefs.SetFloat("gameTime", _gameTime);
+    //}
+
     /* GetEndCell()
      * 
      * because the player spawns at [x:0 z:0], 
@@ -208,6 +230,8 @@ public class BigMazeGenerator : MonoBehaviour
         AudioListener.volume = 1;
         _loadingScreen.SetActive(false);
         FindObjectOfType<PlayerController>().UnfreezePlayer();
+        _timer.SetActive(true);
+        //_gamePlaying = true;
     }
 
     private IEnumerator WaitThenStartGame()
