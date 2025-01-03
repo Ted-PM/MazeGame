@@ -123,6 +123,9 @@ public class BigMazeGenerator : MonoBehaviour
 
     [SerializeField]
     private GameObject _timer;
+
+    [SerializeField]
+    private Flashlight _playerFlash;
     //private float _gameTime;
     //private bool _gamePlaying;
     private void Awake()
@@ -624,6 +627,7 @@ public class BigMazeGenerator : MonoBehaviour
             _wallsMoving = true;
             _wallsMovingSound.Play();
             FindObjectOfType<PlayerController>().ShakeCamera(_timeToLowerWalls);
+            StartCoroutine(_playerFlash.Flicker(_timeToLowerWalls));
             StartCoroutine(FindObjectOfType<OuterWorld>().LowerCeeling(_timeToLowerWalls));
             //PlayerController
 
@@ -698,6 +702,7 @@ public class BigMazeGenerator : MonoBehaviour
             _wallsMovingSound.Play();
             FindObjectOfType<PlayerController>().ShakeCamera(_timeToRaiseWalls);
             StartCoroutine(FindObjectOfType<OuterWorld>().RaiseCeeling(_timeToRaiseWalls));
+            StartCoroutine(_playerFlash.Flicker(_timeToRaiseWalls));
             // go through all cells and call a member function to raise them 
             for (int i = 0; i < _mazeWidth; i++)
             {

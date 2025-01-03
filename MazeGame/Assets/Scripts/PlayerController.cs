@@ -68,6 +68,9 @@ public class PlayerController : MonoBehaviour
     private AudioSource leftStep;// = _step;
     private AudioSource rightStep;// = _step;
 
+    [SerializeField]
+    private PlayerEffects _playerEffects;
+
     //private IEnumerator _sprintCoroutine;
     //private IEnumerator _stopSprintCoroutine;
 
@@ -701,11 +704,13 @@ public class PlayerController : MonoBehaviour
         {
             case 0:
                 Debug.Log("item 0 used, INCREASE SPEED");
+                StartCoroutine(_playerEffects.StartEffect(5f, 0));
                 StartCoroutine(WaitForPlayerBaseSpeed());
                 //StartCoroutine(IncreaseBaseSpeed());
                 break;
             case 1:
                 Debug.Log("item 1 used, PLAYER INVISIBLE");
+                StartCoroutine(_playerEffects.StartEffect(5f, 1));
                 StartCoroutine(WaitForPlayerVisible());
                 break;
             case 2:
@@ -718,6 +723,7 @@ public class PlayerController : MonoBehaviour
                 break;
             case 4:
                 Debug.Log("item 4 used, SNEAK");
+                StartCoroutine(_playerEffects.StartEffect(5f, 2));
                 StartCoroutine(WaitForNotSneaking());
                 break;
             case 5:

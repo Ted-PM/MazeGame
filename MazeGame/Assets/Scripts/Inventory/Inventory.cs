@@ -18,6 +18,9 @@ public class Inventory : MonoBehaviour
     private PlayerController _playerController;
 
     [SerializeField]
+    private TextMeshProUGUI _nearbyItemText;
+
+    [SerializeField]
     private TextMeshProUGUI _slotContents;
 
     private List<InteractableItemScript> _nearbyItems;
@@ -27,6 +30,7 @@ public class Inventory : MonoBehaviour
     {
         instance = this;
         _selectedSlot = 0;
+        _nearbyItemText.enabled = false;
         _slotContents.enabled = false;
         _nearbyItems = new List<InteractableItemScript>();
     }
@@ -59,12 +63,14 @@ public class Inventory : MonoBehaviour
         //yield return new WaitForSeconds(0.1f);
         yield return new WaitForFixedUpdate();
         if (itemID != -1)
-        {
+        { 
             _slotContents.GetComponent<TMPro.TextMeshProUGUI>().text = _itemList[itemID].itemName.ToString();
             _slotContents.enabled = true;
             yield return new WaitForSeconds(1f);
         }
+        
         _slotContents.enabled = false;
+        
     }
 
     public void SelectSlot(int _slotNumber)
@@ -185,8 +191,8 @@ public class Inventory : MonoBehaviour
         if (itemID != -1)
         {
             _nearbyItems.Add(ItemSpawner._iteractablePrefabs[globalID]);
-            _slotContents.GetComponent<TMPro.TextMeshProUGUI>().text = (_itemList[itemID].itemName.ToString() + " [E]");
-            _slotContents.enabled = true;
+            _nearbyItemText.GetComponent<TMPro.TextMeshProUGUI>().text = (_itemList[itemID].itemName.ToString() + " [E]");
+            _nearbyItemText.enabled = true;
         }
     }
 
@@ -197,7 +203,7 @@ public class Inventory : MonoBehaviour
             if (_nearbyItems[i]._globalID == globalID)
             {
                 _nearbyItems.RemoveAt(i);
-                _slotContents.enabled = false;
+                _nearbyItemText.enabled = false;
             }
         }
     }

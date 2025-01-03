@@ -50,7 +50,7 @@ public class InventorySlot : MonoBehaviour
         {
             _renderer.sprite = null;
             hasItem = false;
-            DeSelectSlot();
+            //DeSelectSlot();
             //Inventory.instance.UseItem(currentItemID);
             currentItemID = -1;
         }
@@ -65,7 +65,7 @@ public class InventorySlot : MonoBehaviour
             isSelected = true;
             _slotBG.transform.localScale = _largerScale;
             _renderer.transform.localScale += new Vector3(2.5f, 2.5f, 0);
-            //Inventory.instance.DisplayItemName(currentItemID);
+            Inventory.instance.DisplayItemName(currentItemID);
             //_itemNameCoroutine = Inventory.instance.DisplayItemName(currentItemID);
             //StartCoroutine(_itemNameCoroutine);
         }
