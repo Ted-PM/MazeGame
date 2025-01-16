@@ -85,6 +85,8 @@ public class BlindEnemy : MonoBehaviour
                 Chase(_currentTarget);
             }
         }
+
+        //_enemyAnimation.speed = 0;
     }
 
     private IEnumerator IsEnemyMoving()
@@ -139,19 +141,22 @@ public class BlindEnemy : MonoBehaviour
     }
     private void UpdateEnemySpeed(int ID = 0)
     {
-        _enemyAnimation.speed = 1;
+        _enemyAnimation.speed = _enemySpeed / 10;
         switch (ID)
         {
             case 0:
                 agent.speed = _enemySpeed;
+                //_enemyAnimation.speed = _enemySpeed/10;
                 playerLoud = false;
                 break;
             case 1:
                 agent.speed = _enemySpeed + 2;
+                _enemyAnimation.speed = (_enemySpeed + 2) / 10;
                 playerLoud = true;
                 break;
             case 2:
                 agent.speed = _enemySpeed + 5;
+                _enemyAnimation.speed = (_enemySpeed + 5) / 10;
                 playerLoud = true;
                 break;
             case 3:
