@@ -374,6 +374,7 @@ public class BigMazeGenerator : MonoBehaviour
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(true);
                 var endCellObj = Instantiate(_endCellPrefab, new Vector3(currentCell.transform.position.x + 10, 0f, currentCell.transform.position.z), Quaternion.identity);
                 endCellObj.DisableLeft();
+                _mazeGrid[endCell[0], endCell[1]].ClearRightWall();
             }
             else
             {
@@ -381,6 +382,7 @@ public class BigMazeGenerator : MonoBehaviour
                 _mazeGrid[endCell[0], endCell[1]].HasEnd(false);
                 var endCellObj = Instantiate(_endCellPrefab, new Vector3(currentCell.transform.position.x, 0f, currentCell.transform.position.z + 10), Quaternion.identity);
                 endCellObj.DisableBottom();
+                _mazeGrid[endCell[0], endCell[1]].ClearFrontWall();
             }
 
             // spawn the first enemy at the end of the maze, infront of the end

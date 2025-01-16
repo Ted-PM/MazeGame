@@ -71,6 +71,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private PlayerEffects _playerEffects;
 
+    [SerializeField]
+    private GameObject _flashLight;
+
     //private IEnumerator _sprintCoroutine;
     //private IEnumerator _stopSprintCoroutine;
 
@@ -193,7 +196,9 @@ public class PlayerController : MonoBehaviour
             time += Time.deltaTime;
             t = time / timeToCrouch;
             transform.localScale = Vector3.Lerp(new Vector3(1, 1, 1), new Vector3(1, 0.5f, 1), t);
+            _flashLight.transform.localScale = Vector3.Lerp(new Vector3(1, 2, 1), new Vector3(1, 2, 2), t);
         }
+        //_flashLight.transform.localScale = new Vector3(1, 2, 2); 
 
         yield return null;
         canCrouch = true;
@@ -214,7 +219,9 @@ public class PlayerController : MonoBehaviour
             time += Time.deltaTime;
             t = time / timeToCrouch;
             transform.localScale = Vector3.Lerp(new Vector3(1, 0.5f, 1), new Vector3(1, 1, 1), t);
+            _flashLight.transform.localScale = Vector3.Lerp(new Vector3(1, 2, 2), new Vector3(1, 2, 1), t);
         }
+        
         yield return null;
         maxSpeed += 2;
         canCrouch = true;

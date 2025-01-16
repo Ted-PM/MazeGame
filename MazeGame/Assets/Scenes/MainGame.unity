@@ -8080,6 +8080,7 @@ MonoBehaviour:
   timeToCrouch: 0.2
   canCrouch: 0
   _playerEffects: {fileID: 970965623}
+  _flashLight: {fileID: 5367350645580780940}
 --- !u!54 &1447352212
 Rigidbody:
   m_ObjectHideFlags: 0
